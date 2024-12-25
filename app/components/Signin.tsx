@@ -21,9 +21,10 @@ const Signin = () => {
 
             const res = await axios.post("http://localhost:3500/users/signin", user);
             console.log(res.status);
-            if (res.status == 200) {
+            if (res.status == 200) {                
                 toast.success(res.data.message, { position:"top-center"})
             }
+            res.data.user.isAdmin ? router.replace("/admin-landing"): ""
             
         } catch (error: any) {
             console.log(error.response.data.statusCode);

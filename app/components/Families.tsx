@@ -1,6 +1,6 @@
 "use client"
 import { Table, TableHead, TableHeader, TableRow, TableBody, TableCell } from '@/components/ui/table'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Edit from "../constants/Edit.svg"
 import Delete from "../constants/Delete.svg"
 import Image from 'next/image'
@@ -8,12 +8,17 @@ import { Button } from '@/components/ui/button'
 import { AlertDialog, AlertDialogContent, AlertDialogTrigger, AlertDialogAction } from '@/components/ui/alert-dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import axios from 'axios'
+import { useAppDispatch, useAppSelector } from '@/lib/hooks'
+import { RootState } from '@/lib/store'
+import { Kid, setFamily } from '@/lib/features/FamilySlice'
 
 interface Family {
     id: number,
     name: string
     father: string
     mother: string
+    members?: Kid[]
     kids: number
 }
 
@@ -28,33 +33,42 @@ const Families = () => {
         mother: '',
         kids: 0
     })
-    const [families, setFamilies] = useState<Family[]>([
-        {
-            id: 1,
-            name: "Ebenezer",
-            father: "Nduwayo Nathan",
-            mother: "Shima Lisa",
-            kids: 12
-        },
-        {
-            id: 2,
-            name: "Salvation Siblings",
-            father: "Muhirwa Verygood",
-            mother: "Uwumviyimana Astrie",
-            kids: 13
-        },
-        {
-            id: 3,
-            name: "Jehovah-Nissi",
-            father: "Gisa Fred",
-            mother: "Peace Exaucee",
-            kids: 14
-        },
-    ])
+    const [families, setFamilies] = useState<Family[]>([])
+
+    
 
     // State for handling the delete family dialog
     const [openDeleteDialog, setOpenDeleteDialog] = useState(false)
     const [deleteFamily, setDeleteFamily] = useState<Family | null>(null)
+
+    const dispatch = useAppDispatch()
+
+    const getFamilies = async () => {
+        try {
+            const res = await axios.get("http://localhost:3500/families");
+
+            const familyData = res.data.map((family: any) => ({
+                id: family.id,
+                name: family.familyName,
+                father: family.father,
+                mother: family.mother,
+                members: family.members,
+                kids: family.members.length,
+            }));
+
+            const sortedFamilies: Family[]  = familyData.sort((a: Family, b: Family) => a.id - b.id);
+            setFamilies(sortedFamilies);
+            dispatch(setFamily(sortedFamilies))
+        } catch (error) {
+            console.error("Error fetching families:", error);
+        }
+    };
+
+    useEffect(() => {
+        getFamilies();
+    }, []);
+
+
 
     const handleEditClick = (family: Family) => {
         setEditFamily(family)
