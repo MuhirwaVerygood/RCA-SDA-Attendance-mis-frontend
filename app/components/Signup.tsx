@@ -18,7 +18,7 @@ const Signup = () => {
     const router = useRouter()
 
     const handleNavigate = () => {
-        router.push('/')
+        router.replace('/')
     }
 
 

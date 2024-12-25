@@ -1,7 +1,7 @@
-"use client"
+"use client";
 import localFont from "next/font/local";
 import "./globals.css";
-import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
+import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 import { usePathname } from "next/navigation";
 import Navbar from "./components/Navbar";
@@ -22,34 +22,29 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-
-  const pathname = usePathname()
-
-  const isAdminPage  = pathname === "/admin-landing";
+  const pathname = usePathname();
+  const hideLayout = pathname === "/" || pathname === "/signup";
 
   return (
     <html lang="en">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {isAdminPage && <Navbar  />}
+        {!hideLayout && <Navbar />}
         <SidebarProvider>
-          {isAdminPage ? (
-            <div className="flex flex-row w-full">
-              <div className="w-[20%] ">
+          {!hideLayout ? (
+            <div
+              className="flex flex-row w-full overflow-hidden"
+              style={{ height: "calc(100vh - 40px)", marginTop: "40px" }}
+            >
+              <div className="w-[20%] bg-green-400">
                 <AppSidebar />
               </div>
-              <main className="w-full">
-                {children}
-              </main>
+              <main className="w-full h-full bg-blue-400">{children}</main>
             </div>
-          ) :
-            (
-            <main className="w-full h-screen">
-                {children}
-              </main>
-            )
-          }
+          ) : (
+            <main className="w-full h-screen bg-white">{children}</main>
+          )}
         </SidebarProvider>
       </body>
     </html>

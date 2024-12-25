@@ -1,12 +1,11 @@
-import React from 'react'
-import Navbar from './Navbar'
+import React from "react";
 
 const Landing = () => {
-  return (
-   <div className='flex flex-col bg-orange-400 w-full h-screen'>
-           <Navbar />
-   </div>
-  )
-}
+    return (
+        <div>
+            heloo world
+        </div>
+    );
+};
 
-export default Landing
+export default Landing;

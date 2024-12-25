@@ -52,7 +52,7 @@ const items = [
 
 export function AppSidebar() {
     return (
-        <Sidebar className="h-[calc(100vh-45px)] pt-[3%] pl-[2%] mt-[30px] bg-soft-white">
+        <Sidebar className="h-[calc(100vh-40px)] pt-[3%] pl-[2%] mt-[40px] bg-soft-white">
             <SidebarContent>
                 <SidebarGroup>
                     <SidebarGroupContent>

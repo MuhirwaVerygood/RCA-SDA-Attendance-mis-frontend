@@ -5,7 +5,7 @@ import Landing from '../components/Landing'
 const page = () => {
   return (
       <div>
-          {/* <Landing /> */}
+          <Landing />
     </div>
   )
 }

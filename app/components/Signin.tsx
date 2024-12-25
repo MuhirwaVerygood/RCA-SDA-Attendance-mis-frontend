@@ -24,7 +24,7 @@ const Signin = () => {
     }
 
     const handleNavigate = () => {
-        router.push("signup")
+        router.replace("signup")
     }
 
 
