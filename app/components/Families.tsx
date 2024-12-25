@@ -28,7 +28,6 @@ const Families = () => {
         mother: '',
         kids: 0
     })
-
     const [families, setFamilies] = useState<Family[]>([
         {
             id: 1,
@@ -52,6 +51,10 @@ const Families = () => {
             kids: 14
         },
     ])
+
+    // State for handling the delete family dialog
+    const [openDeleteDialog, setOpenDeleteDialog] = useState(false)
+    const [deleteFamily, setDeleteFamily] = useState<Family | null>(null)
 
     const handleEditClick = (family: Family) => {
         setEditFamily(family)
@@ -80,24 +83,29 @@ const Families = () => {
         }
     }
 
-    const handleDeleteFamily = (id: number) => {
-        setFamilies((prevFamilies) =>
-            prevFamilies.filter((family) => family.id !== id)
-        )
+    // Function to open delete confirmation dialog
+    const handleDeleteClick = (family: Family) => {
+        setDeleteFamily(family)
+        setOpenDeleteDialog(true)
     }
 
-    // Add family logic with a console log for debugging
-    const handleAddFamily = () => {
-        console.log('handleAddFamily triggered', familyForm); // Debugging line
+    // Function to confirm delete
+    const handleDeleteFamily = () => {
+        if (deleteFamily) {
+            setFamilies((prevFamilies) =>
+                prevFamilies.filter((family) => family.id !== deleteFamily.id)
+            )
+            setOpenDeleteDialog(false)
+        }
+    }
 
-        // Ensure the form has all necessary fields filled out
+    // Add family logic
+    const handleAddFamily = () => {
         if (familyForm && familyForm.name && familyForm.father && familyForm.mother && familyForm.kids > 0) {
             const newFamily = { ...familyForm, id: Date.now() }
 
-            // Add new family
             setFamilies((prevFamilies) => [...prevFamilies, newFamily])
 
-            // Reset form data after adding
             setFamilyForm({
                 id: 0,
                 name: '',
@@ -106,8 +114,6 @@ const Families = () => {
                 kids: 0
             })
             setOpenAddDialog(false)
-        } else {
-            console.log('Form is incomplete, cannot add family'); // Debugging line
         }
     }
 
@@ -147,7 +153,7 @@ const Families = () => {
                                     className='h-6 w-6 cursor-pointer'
                                     src={Delete}
                                     alt='Delete family'
-                                    onClick={() => handleDeleteFamily(family.id)}
+                                    onClick={() => handleDeleteClick(family)}
                                 />
                             </TableCell>
                         </TableRow>
@@ -239,9 +245,37 @@ const Families = () => {
                                 onChange={handleFormChange}
                                 placeholder="Number of Children"
                             />
+                        </div>
+
+                        <div className="flex justify-between mt-6">
                             <Button onClick={() => setOpenEditDialog(false)}>Cancel</Button>
                             <Button onClick={handleSaveChanges}>Save Changes</Button>
                         </div>
+                    </div>
+                </AlertDialogContent>
+            </AlertDialog>
+
+            {/* Delete Confirmation Dialog */}
+            <AlertDialog open={openDeleteDialog} onOpenChange={setOpenDeleteDialog}>
+                <AlertDialogTrigger asChild>
+                    <Button className="hidden">Delete Family</Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                    <h3 className="font-semibold text-xl text-center text-red-500">
+                        Delete {deleteFamily?.name}
+                    </h3>
+                    <p className="text-center text-black mt-4">
+                        Are you sure you want to delete {deleteFamily?.name}?
+                    </p>
+
+                    <div className="flex justify-center gap-9 mt-6">
+                        <Button onClick={() => setOpenDeleteDialog(false)}>Cancel</Button>
+                        <Button
+                            className="bg-red-500 text-white"
+                            onClick={handleDeleteFamily}
+                        >
+                            Delete
+                        </Button>
                     </div>
                 </AlertDialogContent>
             </AlertDialog>
