@@ -22,7 +22,7 @@ const items = [
             },
             {
                 title: "Members By Family",
-                url: "/members/family",
+                url: "/families/members",
             },
             {
                 title: "Attendance Records",
