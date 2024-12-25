@@ -5,7 +5,7 @@ import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 import { usePathname } from "next/navigation";
 import Navbar from "./components/Navbar";
-
+import { Toaster } from "react-hot-toast";
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
   variable: "--font-geist-sans",
@@ -46,6 +46,7 @@ export default function RootLayout({
             <main className="w-full h-screen bg-white">{children}</main>
           )}
         </SidebarProvider>
+        <Toaster />
       </body>
     </html>
   );

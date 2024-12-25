@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button"
 import { User } from './Signup'
 import { useRouter } from 'next/navigation'
 import axios from 'axios'
-
+import toast from 'react-hot-toast';
 
 const Signin = () => {
 
@@ -16,10 +16,22 @@ const Signin = () => {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
-        console.log(user);
 
-        const res = await axios.post("http://localhost:3500/users/signin", user);
-        console.log(res.data);
+        try {
+
+            const res = await axios.post("http://localhost:3500/users/signin", user);
+            console.log(res.status);
+            if (res.status == 200) {
+                toast.success(res.data.message, { position:"top-center"})
+            }
+            
+        } catch (error: any) {
+            console.log(error.response.data.statusCode);
+            
+            if (error.response.data.statusCode == 401) {
+                toast.error(error.response.data.message, { position: "top-center" })
+            }
+        }
 
     }
 

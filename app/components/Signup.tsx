@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { useRouter } from 'next/navigation'
 import axios from 'axios'
+import toast from 'react-hot-toast'
 
 export interface User {
     username?: string,
@@ -26,8 +27,21 @@ const Signup = () => {
         e.preventDefault()
 
         const formData = { ...user, isFather: false, isMother: false, isAdmin: true }
-        const res = await axios.post("http://localhost:3500/users/signup", formData);
-        console.log(res.data);
+        try {
+
+            const res = await axios.post("http://localhost:3500/users/signup", formData);
+            console.log(res.status);
+            if (res.status == 201) {
+                toast.success(res.data.message, { position: "top-center" })
+            }
+
+        } catch (error: any) {
+            console.log(error.response.data.statusCode);
+
+            if (error.response.data.statusCode == 409) {
+                toast.error(error.response.data.message, { position: "top-center" })
+            }
+        }
 
     }
 
