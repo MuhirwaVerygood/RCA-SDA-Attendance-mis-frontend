@@ -10,7 +10,9 @@ const config: Config = {
   theme: {
   	extend: {
   		boxShadow: {
-  			custom: '0px 4px 4px 0px #00000040'
+				custom: '0px 4px 4px 0px #00000040',
+				second: '4px 4px 4px 0px #00000040'
+				
   		},
   		screens: {
   			ss: '200px',

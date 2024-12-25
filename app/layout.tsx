@@ -37,10 +37,10 @@ export default function RootLayout({
               className="flex flex-row w-full overflow-hidden"
               style={{ height: "calc(100vh - 40px)", marginTop: "40px" }}
             >
-              <div className="w-[20%] bg-green-400">
+              <div className="w-[20%]   bg-green-400">
                 <AppSidebar />
               </div>
-              <main className="w-full h-full bg-blue-400">{children}</main>
+              <main className="w-full h-full ">{children}</main>
             </div>
           ) : (
             <main className="w-full h-screen bg-white">{children}</main>
