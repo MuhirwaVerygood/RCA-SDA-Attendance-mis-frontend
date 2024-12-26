@@ -8,7 +8,7 @@ import { User } from './Signup'
 import { useRouter } from 'next/navigation'
 import axios from 'axios'
 import toast from 'react-hot-toast';
-
+import Cookie from "js-cookie"
 const Signin = () => {
 
     const [user, setUser] = useState<User >({ email: "", password: "" })
@@ -21,8 +21,10 @@ const Signin = () => {
 
             const res = await axios.post("http://localhost:3500/users/signin", user);
             console.log(res.status);
-            if (res.status == 200) {                
-                toast.success(res.data.message, { position:"top-center"})
+            if (res.status == 200) {            
+                Cookie.set("token", res.data.token)
+                toast.success(res.data.message, { position: "top-center" })
+                
             }
             res.data.user.isAdmin ? router.replace("/admin-landing"): ""
             
@@ -54,10 +56,10 @@ const Signin = () => {
         <div className=' sm:flex ss:flex-col  sm:flex-row mx-auto bg-form-white justify-center items-center ss:h-[100vh] ss:w-full'>
             <div className=' bg-white h-[70%] md:pt-[1%] ss:w-full  md:w-[40%] flex flex-col'>
                 <p className='self-center text-[20px] font-bold mb-[4%]'>Login</p>
-                <form className='w-[70%] flex flex-col pl-[20%]' onSubmit={handleSubmit}>
-                    <Label className='mb-[3%]' htmlFor="email">Email</Label>
-                    <Input className='mb-[3%] h-[30px]' type='email' onChange={handleEmailChange} name='email' />
-                    <Label className='mb-[3%]' htmlFor="password">Password</Label>
+                <form className='w-[70%] flex flex-col space-y-4 pl-[10%]' onSubmit={handleSubmit}>
+                    <Label  htmlFor="email">Email</Label>
+                    <Input className=' h-[30px]' type='email' onChange={handleEmailChange} name='email' />
+                    <Label  htmlFor="password">Password</Label>
                     <Input className=' border-[1px] outline-none  mb-[6%] h-[30px] focus:ring-1 focus:ring-gray-100 ' onChange={handlePasswordChange} type='password' name='password' />
 
                     <div className='mb-[7%]'>

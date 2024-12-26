@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
     NavigationMenu,
     NavigationMenuContent,
@@ -23,60 +23,160 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { AlertDialog, AlertDialogContent, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
-
-interface Member {
-    id: number;
-    name: string;
-    class: string;
-}
+import { Family } from "./Families";
+import axios from "axios";
+import Cookie from "js-cookie";
 
 const Members = () => {
-    const [selectedFamily, setSelectedFamily] = useState<string | null>(null);
-    const [families, setFamilies] = useState<string[]>(["Ebenezer", "Salvation Siblings", "Jehovah-Nissi"]);
-    const [members, setMembers] = useState<{
-        [key: string]: Member[];
-    }>({
-        Ebenezer: [
-            { id: 1, name: "John Doe", class: "Class A" },
-            { id: 2, name: "Jane Doe", class: "Class B" },
-        ],
-        "Salvation Siblings": [
-            { id: 3, name: "Albert Smith", class: "Class C" },
-            { id: 4, name: "Mary Johnson", class: "Class D" },
-        ],
-        "Jehovah-Nissi": [
-            { id: 5, name: "Chris Williams", class: "Class E" },
-            { id: 6, name: "Lucy Brown", class: "Class F" },
-        ],
-    });
-
+    const [families, setFamilies] = useState<Family[]>([]);
+    const [selectedFamilyId, setSelectedFamilyId] = useState<number | null>(null);
     const [openAddDialog, setOpenAddDialog] = useState(false);
+    const [openEditDialog, setOpenEditDialog] = useState(false); // New state for edit dialog
     const [newMember, setNewMember] = useState({ name: "", class: "" });
+    const [editingMember, setEditingMember] = useState<any | null>(null); // State for selected member to edit
 
-    const handleDeleteMember = (familyName: string, memberId: number) => {
-        setMembers((prevMembers) => {
-            const updatedFamilyMembers = prevMembers[familyName].filter(
-                (member) => member.id !== memberId
-            );
-            return { ...prevMembers, [familyName]: updatedFamilyMembers };
-        });
-    };
-
-    const handleEditMember = (familyName: string, member: Member) => {
-        console.log("Editing member:", familyName, member);
-    };
-
-    const handleAddMember = () => {
-        if (selectedFamily && newMember.name && newMember.class) {
-            setMembers((prevMembers) => {
-                const updatedFamilyMembers = [
-                    ...prevMembers[selectedFamily],
-                    { id: Date.now(), name: newMember.name, class: newMember.class },
-                ];
-                return { ...prevMembers, [selectedFamily]: updatedFamilyMembers };
+    const getFamilies = async () => {
+        try {
+            const res = await axios.get("http://localhost:3500/families", {
+                headers: {
+                    Authorization: `Bearer ${Cookie.get("token")}`,
+                },
             });
-            setNewMember({ name: "", class: "" });
-            setOpenAddDialog(false);
+
+            // Mapping the family data and extracting the necessary fields
+            const familyData = res.data.map((family: any) => ({
+                id: family.id,
+                name: family.familyName,
+                father: family.father,
+                mother: family.mother,
+                members: family.members,
+                kids: family.members.length,
+            }));
+
+            // Sort families by id and update the state
+            const sortedFamilies: Family[] = familyData.sort(
+                (a: Family, b: Family) => a.id - b.id
+            );
+            setFamilies(sortedFamilies);
+        } catch (error) {
+            console.error("Error fetching families:", error);
+        }
+    };
+
+    useEffect(() => {
+        getFamilies();
+    }, []);
+
+    const selectedFamily: any = families.find((family) => family.id === selectedFamilyId);
+
+    const handleDeleteMember = async (familyId: number, memberId: number) => {
+        try {
+            await axios.delete(`http://localhost:3500/members/member/${memberId}`, {
+                headers: {
+                    Authorization: `Bearer ${Cookie.get("token")}`,
+                },
+            });
+
+            const updatedMembers = selectedFamily.members.filter(
+                (member: any) => member.id !== memberId
+            );
+            const updatedFamily = { ...selectedFamily, members: updatedMembers };
+            setFamilies((prev) =>
+                prev.map((family) =>
+                    family.id === updatedFamily.id ? updatedFamily : family
+                )
+            );
+        } catch (error) {
+            console.error("Error deleting member:", error);
+        }
+    };
+
+    const handleEditMember = async (familyId: number, member: any) => {
+        setEditingMember(member); // Set member to edit
+        setOpenEditDialog(true); // Open the edit dialog
+    };
+
+    const handleUpdateMember = async () => {
+        
+        if (editingMember ) {
+            console.log("Reached here");
+
+            const updatedMemberData = {
+                name: newMember.name,
+                class: newMember.class,
+            };
+
+            try {
+                const res = await axios.put(
+                    `http://localhost:3500/members/member/${editingMember.id}`,
+                    updatedMemberData,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${Cookie.get("token")}`,
+                        },
+                    }
+                );
+
+                if (res.status === 200) {
+                    // Update the member in the state
+                    const updatedFamily = {
+                        ...selectedFamily,
+                        members: selectedFamily.members.map((member: any) =>
+                            member.id === editingMember.id
+                                ? { ...member, ...updatedMemberData }
+                                : member
+                        ),
+                    };
+
+                    setFamilies((prev) =>
+                        prev.map((family) =>
+                            family.id === updatedFamily.id ? updatedFamily : family
+                        )
+                    );
+                    setOpenEditDialog(false);
+                    setEditingMember(null); // Clear the editing member
+                    getFamilies()
+                }
+            } catch (error) {
+                console.error("Error editing member:", error);
+            }
+        }
+    };
+
+    const handleAddMember = async () => {
+        if (selectedFamily && newMember.name && newMember.class) {
+            const newMemberData = {
+                name: newMember.name,
+                class: newMember.class,
+            };
+
+            try {
+                const res = await axios.post(
+                    `http://localhost:3500/members/${selectedFamily.id}`,
+                    newMemberData,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${Cookie.get("token")}`,
+                        },
+                    }
+                );
+
+                if (res.status === 201) {
+                    const updatedFamily = {
+                        ...selectedFamily,
+                        members: [...selectedFamily.members, res.data],
+                    };
+                    setFamilies((prev) =>
+                        prev.map((family) =>
+                            family.id === updatedFamily.id ? updatedFamily : family
+                        )
+                    );
+                    setNewMember({ name: "", class: "" });
+                    setOpenAddDialog(false);
+                }
+            } catch (error) {
+                console.error("Error adding member:", error);
+            }
         }
     };
 
@@ -84,12 +184,12 @@ const Members = () => {
         <div className="flex flex-col pl-[5%] w-full pt-[5%]">
             <span className="font-semibold text-[25px] mb-[2%]">Family Members</span>
 
-            <NavigationMenu className="bg-soft-white ">
+            <NavigationMenu className="bg-soft-white">
                 <NavigationMenuList className="flex">
-                    {families.map((family, index) => (
-                        <NavigationMenuItem key={index}>
-                            <NavigationMenuTrigger onClick={() => setSelectedFamily(family)}>
-                                {family}
+                    {families.map((family) => (
+                        <NavigationMenuItem key={family.id}>
+                            <NavigationMenuTrigger onClick={() => setSelectedFamilyId(family.id)}>
+                                {family.name}
                             </NavigationMenuTrigger>
                         </NavigationMenuItem>
                     ))}
@@ -98,7 +198,7 @@ const Members = () => {
 
             {selectedFamily && (
                 <div className="mt-8 w-[90%]">
-                    <h3 className="text-xl font-semibold mb-4">Members of {selectedFamily}</h3>
+                    <h3 className="text-xl font-semibold mb-4">Members of {selectedFamily.name}</h3>
                     <Table className="w-full bg-soft-white">
                         <TableHeader>
                             <TableRow>
@@ -109,9 +209,9 @@ const Members = () => {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {members[selectedFamily].map((member) => (
+                            {selectedFamily.members?.map((member: any, index: number) => (
                                 <TableRow key={member.id}>
-                                    <TableCell>{member.id}</TableCell>
+                                    <TableCell>{index + 1}</TableCell>
                                     <TableCell>{member.name}</TableCell>
                                     <TableCell>{member.class}</TableCell>
                                     <TableCell className="flex gap-4">
@@ -119,19 +219,21 @@ const Members = () => {
                                             className="h-6 w-6 cursor-pointer"
                                             src={Edit}
                                             alt="Edit member"
-                                            onClick={() => handleEditMember(selectedFamily, member)}
+                                            onClick={() => handleEditMember(selectedFamily.id, member)}
                                         />
                                         <Image
                                             className="h-6 w-6 cursor-pointer"
                                             src={Delete}
                                             alt="Delete member"
-                                            onClick={() => handleDeleteMember(selectedFamily, member.id)}
+                                            onClick={() => handleDeleteMember(selectedFamily.id, member.id)}
                                         />
                                     </TableCell>
                                 </TableRow>
                             ))}
                         </TableBody>
                     </Table>
+
+                    {/* Add Member Dialog */}
                     <AlertDialog open={openAddDialog} onOpenChange={setOpenAddDialog}>
                         <AlertDialogTrigger asChild>
                             <Button className="mt-4">Add a Member</Button>
@@ -159,12 +261,47 @@ const Members = () => {
                                     onChange={(e) => setNewMember({ ...newMember, class: e.target.value })}
                                     required
                                 />
-                                <div className="flex justify-end gap-4">
-                                    <Button type="button" onClick={() => setOpenAddDialog(false)}>
-                                        Cancel
-                                    </Button>
-                                    <Button type="submit">Add</Button>
-                                </div>
+                                <Button type="submit" className="w-full mt-4">
+                                    Add Member
+                                </Button>
+                            </form>
+                        </AlertDialogContent>
+                    </AlertDialog>
+
+                    {/* Edit Member Dialog */}
+                    <AlertDialog open={openEditDialog} onOpenChange={setOpenEditDialog}>
+                        <AlertDialogTrigger asChild>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                            <h3 className="font-semibold text-xl mb-4 text-center">Edit Member Details</h3>
+                            <form
+                                onSubmit={(e) => {
+                                    e.preventDefault();
+                                    handleUpdateMember();
+                                }}
+                                className="flex flex-col gap-4"
+                            >
+                                <Input
+                                    type="text"
+                                    placeholder="Name"
+                                    value={newMember.name || editingMember?.name || ""}
+                                    onChange={(e) =>
+                                        setNewMember({ ...newMember, name: e.target.value })
+                                    }
+                                    required
+                                />
+                                <Input
+                                    type="text"
+                                    placeholder="Class"
+                                    value={newMember.class || editingMember?.class || ""}
+                                    onChange={(e) =>
+                                        setNewMember({ ...newMember, class: e.target.value })
+                                    }
+                                    required
+                                />
+                                <Button type="submit" className="w-full mt-4" >
+                                    Update Member
+                                </Button>
                             </form>
                         </AlertDialogContent>
                     </AlertDialog>

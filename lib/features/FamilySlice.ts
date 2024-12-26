@@ -28,10 +28,10 @@ const familySlice = createSlice({
     initialState,
     reducers: {
         // Action to set all families
-        setFamily(state, action: PayloadAction<Family[]>) {
-            console.log(action.payload);
-            
+        setFamily(state, action: PayloadAction<Family[]>) {            
             state.families = action.payload;
+            console.log(state.families);
+            
         },
 
         // Action to add a new family
