@@ -2,7 +2,6 @@
 import { useRef } from 'react'
 import { Provider } from 'react-redux'
 import { store, AppStore } from '../lib/store'
-import { setFamily } from '@/lib/features/FamilySlice'
 
 export default function StoreProvider({
     children,

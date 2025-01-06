@@ -17,12 +17,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
-import Edit from "../constants/Edit.svg";
-import Delete from "../constants/Delete.svg";
-import axios from "axios";
+import Edit from "../constants/svgs/Edit.svg";
+import Delete from "../constants/svgs/Delete.svg";
 import { Kid, } from "@/lib/features/FamilySlice";
-import Cookie from "js-cookie"
-import toast from "react-hot-toast";
+import { getFamilies, handleAddFamily, handleDeleteFamily, handleSaveChanges, resetFamilyForm } from "../constants/files/Constants";
 export interface Family {
     id: number;
     name: string;
@@ -30,6 +28,15 @@ export interface Family {
     mother: string;
     members?: Kid[];
     kids: number;
+}
+
+
+export interface FamilyResponseStructure {
+    id: number,
+    familyName: string,
+    father: string,
+    mother: string,
+    members: []
 }
 
 const Families = () => {
@@ -44,80 +51,17 @@ const Families = () => {
         mother: "",
         kids: 0,
     });
-
-
+    const [totalMembers, setTotalMembers] = useState<number>(0);
     const [families, setFamilies] = useState<Family[]>([])
 
-
-    const getFamilies = async () => {
-        try {
-            const res = await axios.get("http://localhost:3500/families", {
-                headers: {
-                    Authorization: `Bearer ${Cookie.get("token")}`
-                }
-            });
-
-            // Mapping the family data and extracting the necessary fields
-            const familyData = res.data.map((family: any) => ({
-                id: family.id,
-                name: family.familyName,
-                father: family.father,
-                mother: family.mother,
-                members: family.members,
-                kids: family.members.length,
-            }));
-
-         
-            // Sort families by id and update the state
-            const sortedFamilies: Family[] = familyData.sort(
-                (a: Family, b: Family) => a.id - b.id
-            );
-            setFamilies(sortedFamilies);
-        } catch (error) {
-            console.error("Error fetching families:", error);
-        }
-    };
-
     useEffect(() => {
-        getFamilies();
+        getFamilies(setFamilies, setTotalMembers);
     }, []);
 
     const handleFormChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setFamilyForm({ ...familyForm, [name]: value });
     };
-
-    const handleAddFamily = async () => {
-        if (familyForm.name && familyForm.father && familyForm.mother) {
-            try {
-                const res = await axios.post(
-                    "http://localhost:3500/families",
-                    {
-                        familyName: familyForm.name,
-                        father: familyForm.father,
-                        mother: familyForm.mother,
-                    },
-                    {
-                        headers: {
-                            Authorization: `Bearer ${Cookie.get("token")}`,
-                        },
-                    }
-                );
-                if (res.status === 201) {
-                    toast.success("Family added successfully", { position: "top-center" });
-                    resetFamilyForm();
-                    setOpenAddDialog(false);
-                    getFamilies(); // Refresh the family list after adding
-                }
-            } catch (error) {
-                console.error("Error adding family", error);
-                toast.error("Failed to add family", { position: "top-center" });
-            }
-        } else {
-            toast.error("Please fill in all fields", { position: "top-center" });
-        }
-    };
-
 
 
     const handleEditClick = (family: Family) => {
@@ -126,81 +70,14 @@ const Families = () => {
         setOpenEditDialog(true);
     };
 
-    const handleSaveChanges = async () => {
-        if (familyForm && selectedFamily) {
-            try {
-                const res = await axios.put(
-                    `http://localhost:3500/families/${selectedFamily.id}`,
-                    {
-                        familyName: familyForm.name,
-                        father: familyForm.father,
-                        mother: familyForm.mother,
-                    },
-                    {
-                        headers: {
-                            Authorization: `Bearer ${Cookie.get("token")}`,
-                        },
-                    }
-                );
-                if (res.status === 200) {
-                    toast.success("Family updated successfully", { position: "top-center" });
-                    const updatedFamilies = families.map((family) =>
-                        family.id === selectedFamily.id ? { ...family, ...familyForm } : family
-                    );
-                    setFamilies(updatedFamilies);
-                    resetFamilyForm();
-                    setOpenEditDialog(false);
-                }
-            } catch (error) {
-                console.error("Error updating family", error);
-                toast.error("Failed to update family", { position: "top-center" });
-            }
-        }
-    };
-
 
     const handleDeleteClick = (family: Family) => {
         setSelectedFamily(family);
         setOpenDeleteDialog(true);
     };
 
-    const handleDeleteFamily = async () => {
-        if (selectedFamily) {
-            try {
-                const res = await axios.delete(
-                    `http://localhost:3500/families/${selectedFamily.id}`,
-                    {
-                        headers: {
-                            Authorization: `Bearer ${Cookie.get("token")}`,
-                        },
-                    }
-                );
-                if (res.status === 200) {
-                    toast.success("Family deleted successfully", { position: "top-center" });
-                    const updatedFamilies = families.filter(
-                        (family) => family.id !== selectedFamily.id
-                    );
-                    setFamilies(updatedFamilies);
-                    setSelectedFamily(null);
-                    setOpenDeleteDialog(false);
-                }
-            } catch (error) {
-                console.error("Error deleting family", error);
-                toast.error("Failed to delete family", { position: "top-center" });
-            }
-        }
-    };
 
 
-    const resetFamilyForm = () => {
-        setFamilyForm({
-            id: 0,
-            name: "",
-            father: "",
-            mother: "",
-            kids: 0,
-        });
-    };
 
     return (
         <div className="flex flex-col pl-[5%] w-full pt-[5%] overflow-auto">
@@ -210,8 +87,8 @@ const Families = () => {
                     <TableRow>
                         <TableHead className="w-[50px] font-bold text-black">#</TableHead>
                         <TableHead className="font-semibold text-black">Family Name</TableHead>
-                        <TableHead className="font-semibold text-black">Father's Name</TableHead>
-                        <TableHead className="font-semibold text-black">Mother's Name</TableHead>
+                        <TableHead className="font-semibold text-black">Father&apos;s Name</TableHead>
+                        <TableHead className="font-semibold text-black">Mother&apos;s Name</TableHead>
                         <TableHead className="font-semibold text-black text-center">
                             Number of Children
                         </TableHead>
@@ -274,9 +151,9 @@ const Families = () => {
                             onChange={handleFormChange}
                             placeholder="Mother's Name"
                         />
-                     
+
                         <Button onClick={() => setOpenAddDialog(false)}>Close</Button>
-                        <Button onClick={handleAddFamily}>Add Family</Button>
+                        <Button onClick={() => handleAddFamily(familyForm, setOpenAddDialog, setFamilies, setTotalMembers)}>Add Family</Button>
                     </div>
                 </AlertDialogContent>
             </AlertDialog>
@@ -315,7 +192,7 @@ const Families = () => {
                             placeholder="Number of Children"
                         />
                         <Button onClick={() => setOpenEditDialog(false)}>Cancel</Button>
-                        <Button onClick={handleSaveChanges}>Save Changes</Button>
+                        <Button onClick={() => handleSaveChanges(familyForm, selectedFamily, families, setFamilies, setFamilyForm, setOpenEditDialog)}>Save Changes</Button>
                     </div>
                 </AlertDialogContent>
             </AlertDialog>
@@ -333,7 +210,7 @@ const Families = () => {
                         <Button onClick={() => setOpenDeleteDialog(false)}>Cancel</Button>
                         <Button
                             className="bg-red-500 hover:bg-red-600"
-                            onClick={handleDeleteFamily}
+                            onClick={() => handleDeleteFamily(selectedFamily, families, setFamilies, setSelectedFamily, setOpenDeleteDialog)}
                         >
                             Delete
                         </Button>

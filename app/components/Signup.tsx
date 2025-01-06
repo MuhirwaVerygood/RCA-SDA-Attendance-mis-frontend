@@ -1,11 +1,12 @@
 "use client"
-import React, { useState } from 'react'
+import React, { ErrorInfo, useState } from 'react'
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { useRouter } from 'next/navigation'
 import axios from 'axios'
 import toast from 'react-hot-toast'
+import { registerUser } from '../constants/files/Constants'
 
 export interface User {
     username?: string,
@@ -27,22 +28,7 @@ const Signup = () => {
         e.preventDefault()
 
         const formData = { ...user, isFather: false, isMother: false, isAdmin: true }
-        try {
-
-            const res = await axios.post("http://localhost:3500/users/signup", formData);
-            console.log(res.status);
-            if (res.status == 201) {
-                toast.success(res.data.message, { position: "top-center" })
-            }
-
-        } catch (error: any) {
-            console.log(error.response.data.statusCode);
-
-            if (error.response.data.statusCode == 409) {
-                toast.error(error.response.data.message, { position: "top-center" })
-            }
-        }
-
+        registerUser(formData, router)
     }
 
     const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {

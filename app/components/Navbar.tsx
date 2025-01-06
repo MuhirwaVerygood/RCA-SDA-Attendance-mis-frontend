@@ -1,6 +1,6 @@
 import React from "react";
-import Notification from "../../app/constants/Notification.svg";
-import Customer from "../../app/constants/Customer.svg";
+import Notification from "../../app/constants/svgs/Notification.svg";
+import Customer from "../../app/constants/svgs/Customer.svg";
 import Image from "next/image";
 
 const Navbar = () => {

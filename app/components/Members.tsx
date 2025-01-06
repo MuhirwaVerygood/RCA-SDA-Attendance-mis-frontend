@@ -3,9 +3,7 @@
 import React, { useEffect, useState } from "react";
 import {
     NavigationMenu,
-    NavigationMenuContent,
     NavigationMenuItem,
-    NavigationMenuLink,
     NavigationMenuList,
     NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
@@ -17,54 +15,29 @@ import {
     TableBody,
     TableCell,
 } from "@/components/ui/table";
-import Edit from "../constants/Edit.svg";
-import Delete from "../constants/Delete.svg";
+import Edit from "../constants/svgs/Edit.svg";
+import Delete from "../constants/svgs/Delete.svg";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { AlertDialog, AlertDialogContent, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
-import { Family } from "./Families";
+import { Family, FamilyResponseStructure } from "./Families";
 import axios from "axios";
 import Cookie from "js-cookie";
+import { getFamilies } from "../constants/files/Constants";
 
 const Members = () => {
     const [families, setFamilies] = useState<Family[]>([]);
     const [selectedFamilyId, setSelectedFamilyId] = useState<number | null>(null);
     const [openAddDialog, setOpenAddDialog] = useState(false);
-    const [openEditDialog, setOpenEditDialog] = useState(false); // New state for edit dialog
+    const [openEditDialog, setOpenEditDialog] = useState(false); 
     const [newMember, setNewMember] = useState({ name: "", class: "" });
-    const [editingMember, setEditingMember] = useState<any | null>(null); // State for selected member to edit
-
-    const getFamilies = async () => {
-        try {
-            const res = await axios.get("http://localhost:3500/families", {
-                headers: {
-                    Authorization: `Bearer ${Cookie.get("token")}`,
-                },
-            });
-
-            // Mapping the family data and extracting the necessary fields
-            const familyData = res.data.map((family: any) => ({
-                id: family.id,
-                name: family.familyName,
-                father: family.father,
-                mother: family.mother,
-                members: family.members,
-                kids: family.members.length,
-            }));
-
-            // Sort families by id and update the state
-            const sortedFamilies: Family[] = familyData.sort(
-                (a: Family, b: Family) => a.id - b.id
-            );
-            setFamilies(sortedFamilies);
-        } catch (error) {
-            console.error("Error fetching families:", error);
-        }
-    };
+    const [editingMember, setEditingMember] = useState<any | null>(null);
+    const [totalMembers, setTotalMembers] = useState<number>(0);
+    
 
     useEffect(() => {
-        getFamilies();
+        getFamilies(setFamilies, setTotalMembers);
     }, []);
 
     const selectedFamily: any = families.find((family) => family.id === selectedFamilyId);
@@ -92,8 +65,8 @@ const Members = () => {
     };
 
     const handleEditMember = async (familyId: number, member: any) => {
-        setEditingMember(member); // Set member to edit
-        setOpenEditDialog(true); // Open the edit dialog
+        setEditingMember(member); 
+        setOpenEditDialog(true); 
     };
 
     const handleUpdateMember = async () => {
@@ -118,7 +91,6 @@ const Members = () => {
                 );
 
                 if (res.status === 200) {
-                    // Update the member in the state
                     const updatedFamily = {
                         ...selectedFamily,
                         members: selectedFamily.members.map((member: any) =>
@@ -134,8 +106,8 @@ const Members = () => {
                         )
                     );
                     setOpenEditDialog(false);
-                    setEditingMember(null); // Clear the editing member
-                    getFamilies()
+                    setEditingMember(null);
+                    getFamilies(setFamilies, setTotalMembers)
                 }
             } catch (error) {
                 console.error("Error editing member:", error);

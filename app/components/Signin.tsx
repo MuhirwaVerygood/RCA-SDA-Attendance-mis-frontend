@@ -1,59 +1,30 @@
 "use client"
-import React, { useState, useEffect, ChangeEvent } from 'react'
+import React, { useState, useEffect } from 'react'
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Button } from "@/components/ui/button"
 import { User } from './Signup'
 import { useRouter } from 'next/navigation'
-import axios from 'axios'
-import toast from 'react-hot-toast';
-import Cookie from "js-cookie"
+import { loginUser } from '../constants/files/Constants'
+
 
 const Signin = () => {
     const [user, setUser] = useState<User>({ email: "", password: "" })
-    const [rememberMe, setRememberMe] = useState(false);  // State to track "Remember Me" checkbox
+    const [rememberMe, setRememberMe] = useState(false);
     const router = useRouter()
 
-    // Check if credentials are saved in cookies/localStorage when the component mounts
     useEffect(() => {
         const savedEmail = localStorage.getItem('email');
         const savedPassword = localStorage.getItem('password');
         if (savedEmail && savedPassword) {
             setUser({ email: savedEmail, password: savedPassword });
-            setRememberMe(true);  // Automatically check the "Remember Me" box if credentials are found
         }
     }, []);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
-
-        try {
-            const res = await axios.post("http://localhost:3500/users/signin", user);
-            console.log(res.status);
-            if (res.status === 200) {
-                Cookie.set("token", res.data.token);
-                toast.success(res.data.message, { position: "top-center" });
-
-                // Save credentials if "Remember Me" is checked
-                if (rememberMe) {
-                    localStorage.setItem('email', user.email);
-                    localStorage.setItem('password', user.password); // Save password securely (consider using a more secure method)
-                } else {
-                    localStorage.removeItem('email');
-                    localStorage.removeItem('password');
-                }
-            }
-
-            // Redirect based on user role
-            res.data.user.isAdmin ? router.replace("/admin-landing") : "";
-        } catch (error: any) {
-            console.log(error.response.data.statusCode);
-
-            if (error.response.data.statusCode === 401) {
-                toast.error(error.response.data.message, { position: "top-center" })
-            }
-        }
+        loginUser(user, rememberMe, router)
     }
 
     const handleNavigate = () => {
@@ -69,7 +40,7 @@ const Signin = () => {
     }
 
     const handleRememberMeChange = () => {
-        setRememberMe(!rememberMe);  // Toggle remember me state when checkbox changes
+        setRememberMe(!rememberMe);  
     }
 
     return (
