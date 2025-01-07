@@ -42,7 +42,7 @@ const Members = () => {
 
     const selectedFamily: any = families.find((family) => family.id === selectedFamilyId);
 
-    const handleDeleteMember = async (familyId: number, memberId: number) => {
+    const handleDeleteMember = async ( memberId: number) => {
         try {
             await axios.delete(`http://localhost:3500/members/member/${memberId}`, {
                 headers: {
@@ -209,7 +209,7 @@ const Members = () => {
                                                                     src={Delete}
                                                                     alt="Delete member"
                                                                     onClick={() =>
-                                                                        handleDeleteMember(family.id, member.id)
+                                                                        handleDeleteMember(member.id)
                                                                     }
                                                                 />
                                                             </TableCell>
@@ -260,7 +260,8 @@ const Members = () => {
                                     onChange={(e) => setNewMember({ ...newMember, class: e.target.value })}
                                     required
                                 />
-                                <Button type="submit" className="w-full mt-4">
+                                <Button onClick={() => setOpenAddDialog(false)}>Cancel</Button>
+                                <Button type="submit" className="w-full ">
                                     Add Member
                                 </Button>
                             </form>
