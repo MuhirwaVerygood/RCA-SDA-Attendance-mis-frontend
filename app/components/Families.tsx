@@ -21,6 +21,7 @@ import Edit from "../constants/svgs/Edit.svg";
 import Delete from "../constants/svgs/Delete.svg";
 import { Kid, } from "@/lib/features/FamilySlice";
 import { getFamilies, handleAddFamily, handleDeleteFamily, handleSaveChanges, resetFamilyForm } from "../constants/files/Constants";
+import { useFamilies } from "../contexts/FamiliesContext";
 export interface Family {
     id: number;
     name: string;
@@ -51,13 +52,8 @@ const Families = () => {
         mother: "",
         kids: 0,
     });
-    const [totalMembers, setTotalMembers] = useState<number>(0);
-    const [families, setFamilies] = useState<Family[]>([])
-
-    useEffect(() => {
-        getFamilies(setFamilies, setTotalMembers);
-    }, []);
-
+    const { families, setTotalMembers, setFamilies } = useFamilies();
+    
     const handleFormChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setFamilyForm({ ...familyForm, [name]: value });
@@ -96,7 +92,7 @@ const Families = () => {
                     </TableRow>
                 </TableHeader>
                 <TableBody>
-                    {families.map((family) => (
+                    {families.map((family: Family) => (
                         <TableRow key={family.id}>
                             <TableCell>{family.id}</TableCell>
                             <TableCell>{family.name}</TableCell>

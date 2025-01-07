@@ -4,17 +4,10 @@ import ChartArrowRise from "../constants/svgs/ChartArrowRise.svg";
 import Image from "next/image";
 import { Family } from "./Families";
 import { getFamilies } from "../constants/files/Constants";
+import { useFamilies } from "../contexts/FamiliesContext";
 
 const Landing = () => {
-    const [families, setFamilies] = useState<Family[]>([]);
-    const [totalMembers, setTotalMembers] = useState<number>(0);
-
-    useEffect(() => {
-        getFamilies(setFamilies, setTotalMembers);
-    }, []);
-
-    console.log(families);
-
+    const { families, totalMembers} = useFamilies();
     return (
         <div className="flex flex-row w-[70%] pt-[4%] mx-auto space-x-6">
             <div className="flex flex-col w-[25%] bg-soft-white py-4 shadow-second">

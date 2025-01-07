@@ -219,3 +219,140 @@ export async function handleDeleteFamily(
         }
     }
 }
+
+
+export async function handleDeleteMember(
+    selectedFamily: any,
+    memberId: number,
+    setFamilies: React.Dispatch<React.SetStateAction<Family[]>>
+) {
+    try {
+        await axios.delete(`http://localhost:3500/members/member/${memberId}`, {
+            headers: {
+                Authorization: `Bearer ${Cookie.get("token")}`,
+            },
+        });
+
+        const updatedMembers = selectedFamily.members.filter(
+            (member: any) => member.id !== memberId
+        );
+        const updatedFamily = { ...selectedFamily, members: updatedMembers };
+        setFamilies((prev) =>
+            prev.map((family) =>
+                family.id === updatedFamily.id ? updatedFamily : family
+            )
+        );
+        toast.success("Member deleted successfully", { position:"top-center"});
+    } catch (error) {
+        console.error("Error deleting member:", error);
+    }
+}
+
+
+
+export async function handleAddMember(
+    selectedFamily: any,
+    newMember: {
+        name: string;
+        class: string;
+    },
+    setFamilies: React.Dispatch<React.SetStateAction<Family[]>>,
+    setNewMember: React.Dispatch<React.SetStateAction<{
+        name: string;
+        class: string;
+    }>>,
+    setOpenAddDialog: React.Dispatch<React.SetStateAction<boolean>>
+) {
+    if (selectedFamily && newMember.name && newMember.class) {
+        const newMemberData = {
+            name: newMember.name,
+            class: newMember.class,
+        };
+
+        try {
+            const res = await axios.post(
+                `http://localhost:3500/members/${selectedFamily.id}`,
+                newMemberData,
+                {
+                    headers: {
+                        Authorization: `Bearer ${Cookie.get("token")}`,
+                    },
+                }
+            );
+
+            if (res.status === 201) {
+                const updatedFamily = {
+                    ...selectedFamily,
+                    members: [...selectedFamily.members, res.data],
+                };
+                setFamilies((prev) =>
+                    prev.map((family) =>
+                        family.id === updatedFamily.id ? updatedFamily : family
+                    )
+                );
+                setNewMember({ name: "", class: "" });
+                setOpenAddDialog(false);
+                toast.success("Member added successfully", { position: "top-center"})
+            }
+        } catch (error) {
+            console.error("Error adding member:", error);
+        }
+    }
+}
+
+
+export async function handleUpdateMember(
+    editingMember: any,
+    newMember: {
+        name: string;
+        class: string;
+    },
+    selectedFamily: any,
+    setFamilies: React.Dispatch<React.SetStateAction<Family[]>>,
+    setOpenEditDialog: React.Dispatch<React.SetStateAction<boolean>>,
+    setEditingMember: React.Dispatch<any>,
+    setTotalMembers: React.Dispatch<React.SetStateAction<number>>
+) {
+    if (editingMember) {
+        console.log("Reached here");
+
+        const updatedMemberData = {
+            name: newMember.name,
+            class: newMember.class,
+        };
+
+        try {
+            const res = await axios.put(
+                `http://localhost:3500/members/member/${editingMember.id}`,
+                updatedMemberData,
+                {
+                    headers: {
+                        Authorization: `Bearer ${Cookie.get("token")}`,
+                    },
+                }
+            );
+
+            if (res.status === 200) {
+                const updatedFamily = {
+                    ...selectedFamily,
+                    members: selectedFamily.members.map((member: any) =>
+                        member.id === editingMember.id
+                            ? { ...member, ...updatedMemberData }
+                            : member
+                    ),
+                };
+
+                setFamilies((prev) =>
+                    prev.map((family) =>
+                        family.id === updatedFamily.id ? updatedFamily : family
+                    )
+                );
+                setOpenEditDialog(false);
+                setEditingMember(null);
+                getFamilies(setFamilies, setTotalMembers)
+            }
+        } catch (error) {
+            console.error("Error editing member:", error);
+        }
+    }
+}

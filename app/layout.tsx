@@ -6,6 +6,7 @@ import { AppSidebar } from "@/components/app-sidebar";
 import { usePathname } from "next/navigation";
 import Navbar from "./components/Navbar";
 import { Toaster } from "react-hot-toast";
+import { FamiliesProvider } from "./contexts/FamiliesContext";
 import StoreProvider from "./StoreProvider";
 import { useState } from "react";
 const geistSans = localFont({
@@ -49,11 +50,12 @@ export default function RootLayout({
                 </div>
 
                 <main 
-                  className={`h-full transition-all duration-300  ${showSidebar ? "w-full " : "w-full "
-                    }`}
+                  className="h-full transition-all duration-300  w-full"
                 >
-                  <SidebarTrigger onClick={toggleSidebar} />
-                  {children}
+                  <FamiliesProvider >
+                    <SidebarTrigger onClick={toggleSidebar} />
+                    {children}
+                </FamiliesProvider>
                 </main>
 
               </div>

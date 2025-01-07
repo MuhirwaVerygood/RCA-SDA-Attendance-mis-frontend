@@ -21,137 +21,26 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { AlertDialog, AlertDialogContent, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
-import { Family, FamilyResponseStructure } from "./Families";
-import axios from "axios";
-import Cookie from "js-cookie";
-import { getFamilies } from "../constants/files/Constants";
+import { Family } from "./Families";
+import { handleAddMember, handleDeleteMember, handleUpdateMember } from "../constants/files/Constants";
+import { useFamilies } from "../contexts/FamiliesContext";
 
 const Members = () => {
-    const [families, setFamilies] = useState<Family[]>([]);
     const [selectedFamilyId, setSelectedFamilyId] = useState<number | null>(null);
     const [openAddDialog, setOpenAddDialog] = useState(false);
     const [openEditDialog, setOpenEditDialog] = useState(false);
     const [newMember, setNewMember] = useState({ name: "", class: "" });
     const [editingMember, setEditingMember] = useState<any | null>(null);
-    const [totalMembers, setTotalMembers] = useState<number>(0);
 
-
-    useEffect(() => {
-        getFamilies(setFamilies, setTotalMembers);
-    }, []);
-
+    const { families, setTotalMembers, setFamilies } = useFamilies();
+    
     const selectedFamily: any = families.find((family) => family.id === selectedFamilyId);
-
-    const handleDeleteMember = async ( memberId: number) => {
-        try {
-            await axios.delete(`http://localhost:3500/members/member/${memberId}`, {
-                headers: {
-                    Authorization: `Bearer ${Cookie.get("token")}`,
-                },
-            });
-
-            const updatedMembers = selectedFamily.members.filter(
-                (member: any) => member.id !== memberId
-            );
-            const updatedFamily = { ...selectedFamily, members: updatedMembers };
-            setFamilies((prev) =>
-                prev.map((family) =>
-                    family.id === updatedFamily.id ? updatedFamily : family
-                )
-            );
-        } catch (error) {
-            console.error("Error deleting member:", error);
-        }
-    };
 
     const handleEditMember = async (familyId: number, member: any) => {
         setEditingMember(member);
         setOpenEditDialog(true);
     };
-
-    const handleUpdateMember = async () => {
-
-        if (editingMember) {
-            console.log("Reached here");
-
-            const updatedMemberData = {
-                name: newMember.name,
-                class: newMember.class,
-            };
-
-            try {
-                const res = await axios.put(
-                    `http://localhost:3500/members/member/${editingMember.id}`,
-                    updatedMemberData,
-                    {
-                        headers: {
-                            Authorization: `Bearer ${Cookie.get("token")}`,
-                        },
-                    }
-                );
-
-                if (res.status === 200) {
-                    const updatedFamily = {
-                        ...selectedFamily,
-                        members: selectedFamily.members.map((member: any) =>
-                            member.id === editingMember.id
-                                ? { ...member, ...updatedMemberData }
-                                : member
-                        ),
-                    };
-
-                    setFamilies((prev) =>
-                        prev.map((family) =>
-                            family.id === updatedFamily.id ? updatedFamily : family
-                        )
-                    );
-                    setOpenEditDialog(false);
-                    setEditingMember(null);
-                    getFamilies(setFamilies, setTotalMembers)
-                }
-            } catch (error) {
-                console.error("Error editing member:", error);
-            }
-        }
-    };
-
-    const handleAddMember = async () => {
-        if (selectedFamily && newMember.name && newMember.class) {
-            const newMemberData = {
-                name: newMember.name,
-                class: newMember.class,
-            };
-
-            try {
-                const res = await axios.post(
-                    `http://localhost:3500/members/${selectedFamily.id}`,
-                    newMemberData,
-                    {
-                        headers: {
-                            Authorization: `Bearer ${Cookie.get("token")}`,
-                        },
-                    }
-                );
-
-                if (res.status === 201) {
-                    const updatedFamily = {
-                        ...selectedFamily,
-                        members: [...selectedFamily.members, res.data],
-                    };
-                    setFamilies((prev) =>
-                        prev.map((family) =>
-                            family.id === updatedFamily.id ? updatedFamily : family
-                        )
-                    );
-                    setNewMember({ name: "", class: "" });
-                    setOpenAddDialog(false);
-                }
-            } catch (error) {
-                console.error("Error adding member:", error);
-            }
-        }
-    };
-
+ 
     return (
         <div className="flex flex-col pl-[5%]  pt-[5%]">
             <span className="font-semibold text-[25px] mb-[2%]">Family Members</span>
@@ -209,7 +98,7 @@ const Members = () => {
                                                                     src={Delete}
                                                                     alt="Delete member"
                                                                     onClick={() =>
-                                                                        handleDeleteMember(member.id)
+                                                                        handleDeleteMember(selectedFamily, member.id, setFamilies)
                                                                     }
                                                                 />
                                                             </TableCell>
@@ -242,7 +131,7 @@ const Members = () => {
                             <form
                                 onSubmit={(e) => {
                                     e.preventDefault();
-                                    handleAddMember();
+                                    handleAddMember(selectedFamily, newMember, setFamilies, setNewMember, setOpenAddDialog);
                                 }}
                                 className="flex flex-col gap-4"
                             >
@@ -277,7 +166,7 @@ const Members = () => {
                             <form
                                 onSubmit={(e) => {
                                     e.preventDefault();
-                                    handleUpdateMember();
+                                    handleUpdateMember(editingMember, newMember, selectedFamily, setFamilies, setOpenEditDialog, setEditingMember,setTotalMembers);
                                 }}
                                 className="flex flex-col gap-4"
                             >
