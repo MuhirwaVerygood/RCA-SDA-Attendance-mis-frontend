@@ -161,7 +161,7 @@ const Members = () => {
                     <div className="w-full">
                         <NavigationMenuList className="flex flex-col justify-start">
                             {families.map((family: Family) => (
-                                <NavigationMenuItem className="w-full" key={family.id}>
+                                <NavigationMenuItem className="w-full " key={family.id}>
                                     <NavigationMenuTrigger
                                         className="flex text-start self-start"
                                         onClick={() =>

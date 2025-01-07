@@ -49,7 +49,7 @@ export default function RootLayout({
                 </div>
 
                 <main 
-                  className={`h-full transition-all duration-300 ${showSidebar ? "w-screen" : "w-80%"
+                  className={`h-full transition-all duration-300  ${showSidebar ? "w-full " : "w-full "
                     }`}
                 >
                   <SidebarTrigger onClick={toggleSidebar} />
