@@ -1,12 +1,13 @@
 "use client";
 import localFont from "next/font/local";
 import "./globals.css";
-import { SidebarProvider } from "@/components/ui/sidebar";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
 import { usePathname } from "next/navigation";
 import Navbar from "./components/Navbar";
 import { Toaster } from "react-hot-toast";
 import StoreProvider from "./StoreProvider";
+import { useState } from "react";
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
   variable: "--font-geist-sans",
@@ -25,6 +26,10 @@ export default function RootLayout({
 }>) {
   const pathname = usePathname();
   const hideLayout = pathname === "/" || pathname === "/signup";
+  const [showSidebar, setShowSidebar] = useState<boolean>(true)
+  const toggleSidebar = () => {
+    setShowSidebar(!showSidebar)
+  }
 
   return (
     <html lang="en">
@@ -39,10 +44,18 @@ export default function RootLayout({
                 className="flex flex-row w-full overflow-hidden"
                 style={{ height: "calc(100vh - 40px)", marginTop: "40px" }}
               >
-                <div className="w-[20%]   bg-green-400">
+                <div className={`${showSidebar ? "w-20%" : "w-0"} bg-green-400`}>
                   <AppSidebar />
                 </div>
-                <main className="w-full h-full ">{children}</main>
+
+                <main 
+                  className={`h-full transition-all duration-300 ${showSidebar ? "w-screen" : "w-80%"
+                    }`}
+                >
+                  <SidebarTrigger onClick={toggleSidebar} />
+                  {children}
+                </main>
+
               </div>
             ) : (
               <main className="w-full h-screen bg-white">{children}</main>

@@ -30,11 +30,11 @@ const Members = () => {
     const [families, setFamilies] = useState<Family[]>([]);
     const [selectedFamilyId, setSelectedFamilyId] = useState<number | null>(null);
     const [openAddDialog, setOpenAddDialog] = useState(false);
-    const [openEditDialog, setOpenEditDialog] = useState(false); 
+    const [openEditDialog, setOpenEditDialog] = useState(false);
     const [newMember, setNewMember] = useState({ name: "", class: "" });
     const [editingMember, setEditingMember] = useState<any | null>(null);
     const [totalMembers, setTotalMembers] = useState<number>(0);
-    
+
 
     useEffect(() => {
         getFamilies(setFamilies, setTotalMembers);
@@ -65,13 +65,13 @@ const Members = () => {
     };
 
     const handleEditMember = async (familyId: number, member: any) => {
-        setEditingMember(member); 
-        setOpenEditDialog(true); 
+        setEditingMember(member);
+        setOpenEditDialog(true);
     };
 
     const handleUpdateMember = async () => {
-        
-        if (editingMember ) {
+
+        if (editingMember) {
             console.log("Reached here");
 
             const updatedMemberData = {
@@ -153,63 +153,90 @@ const Members = () => {
     };
 
     return (
-        <div className="flex flex-col pl-[5%] w-full pt-[5%]">
+        <div className="flex flex-col pl-[5%]  pt-[5%]">
             <span className="font-semibold text-[25px] mb-[2%]">Family Members</span>
 
-            <NavigationMenu className="bg-soft-white">
-                <NavigationMenuList className="flex">
-                    {families.map((family) => (
-                        <NavigationMenuItem key={family.id}>
-                            <NavigationMenuTrigger onClick={() => setSelectedFamilyId(family.id)}>
-                                {family.name}
-                            </NavigationMenuTrigger>
-                        </NavigationMenuItem>
-                    ))}
-                </NavigationMenuList>
-            </NavigationMenu>
+            <div className="w-full py-7 px-4">
+                <NavigationMenu className=" flex items-start w-full">
+                    <div className="w-full">
+                        <NavigationMenuList className="flex flex-col justify-start">
+                            {families.map((family: Family) => (
+                                <NavigationMenuItem className="w-full" key={family.id}>
+                                    <NavigationMenuTrigger
+                                        className="flex text-start self-start"
+                                        onClick={() =>
+                                            setSelectedFamilyId(
+                                                selectedFamily === family.id ? null : family.id
+                                            )
+                                        }
+                                    >
+                                        {family.name}
+                                    </NavigationMenuTrigger>
+                                    {selectedFamilyId === family.id && (
+                                        <div className="mt-4 w-full">
+                                            <Table className="w-full bg-white">
+                                                <TableHeader>
+                                                    <TableRow>
+                                                        <TableHead className="w-[50px] font-bold text-black">
+                                                            #
+                                                        </TableHead>
+                                                        <TableHead className="font-semibold text-black">
+                                                            Names
+                                                        </TableHead>
+                                                        <TableHead className="font-semibold text-black">
+                                                            Class
+                                                        </TableHead>
+                                                        <TableHead className="font-semibold text-black">
+                                                            Actions
+                                                        </TableHead>
+                                                    </TableRow>
+                                                </TableHeader>
+                                                <TableBody>
+                                                    {family.members?.map((member, index) => (
+                                                        <TableRow key={member.id}>
+                                                            <TableCell>{index + 1}</TableCell>
+                                                            <TableCell>{member.name}</TableCell>
+                                                            <TableCell>{member.class}</TableCell>
+                                                            <TableCell className="flex gap-4">
+                                                                <Image
+                                                                    className="h-6 w-6 cursor-pointer"
+                                                                    src={Edit}
+                                                                    alt="Edit member"
+                                                                    onClick={() => handleEditMember(family.id, member)}
+                                                                />
+                                                                <Image
+                                                                    className="h-6 w-6 cursor-pointer"
+                                                                    src={Delete}
+                                                                    alt="Delete member"
+                                                                    onClick={() =>
+                                                                        handleDeleteMember(family.id, member.id)
+                                                                    }
+                                                                />
+                                                            </TableCell>
+                                                        </TableRow>
+                                                    ))}
+                                                </TableBody>
+                                            </Table>
+
+                                            <Button
+                                                className="mt-4"
+                                                onClick={() => setOpenAddDialog(true)}
+                                            >
+                                                Add a Member
+                                            </Button>
+                                        </div>
+                                    )}
+                                </NavigationMenuItem>
+                            ))}
+                        </NavigationMenuList>
+                    </div>
+                </NavigationMenu>
+            </div>
 
             {selectedFamily && (
-                <div className="mt-8 w-[90%]">
-                    <h3 className="text-xl font-semibold mb-4">Members of {selectedFamily.name}</h3>
-                    <Table className="w-full bg-soft-white">
-                        <TableHeader>
-                            <TableRow>
-                                <TableHead className="w-[50px] font-bold text-black">#</TableHead>
-                                <TableHead className="font-semibold text-black">Names</TableHead>
-                                <TableHead className="font-semibold text-black">Class</TableHead>
-                                <TableHead className="font-semibold text-black">Actions</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {selectedFamily.members?.map((member: any, index: number) => (
-                                <TableRow key={member.id}>
-                                    <TableCell>{index + 1}</TableCell>
-                                    <TableCell>{member.name}</TableCell>
-                                    <TableCell>{member.class}</TableCell>
-                                    <TableCell className="flex gap-4">
-                                        <Image
-                                            className="h-6 w-6 cursor-pointer"
-                                            src={Edit}
-                                            alt="Edit member"
-                                            onClick={() => handleEditMember(selectedFamily.id, member)}
-                                        />
-                                        <Image
-                                            className="h-6 w-6 cursor-pointer"
-                                            src={Delete}
-                                            alt="Delete member"
-                                            onClick={() => handleDeleteMember(selectedFamily.id, member.id)}
-                                        />
-                                    </TableCell>
-                                </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-
+                <div className="mt-8 bg-red-500">
                     {/* Add Member Dialog */}
                     <AlertDialog open={openAddDialog} onOpenChange={setOpenAddDialog}>
-                        <AlertDialogTrigger asChild>
-                            <Button className="mt-4">Add a Member</Button>
-                        </AlertDialogTrigger>
                         <AlertDialogContent>
                             <h3 className="font-semibold text-xl mb-4 text-center">Add a New Member</h3>
                             <form

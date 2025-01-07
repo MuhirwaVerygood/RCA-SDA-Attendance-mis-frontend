@@ -60,7 +60,7 @@ const Signin = () => {
                         </div>
                     </div>
 
-                    <Button className='w-[40%] self-center mb-3' type='submit' onClick={handleSubmit}>Signin</Button>
+                    <Button className='w-full self-start mb-3' type='submit' onClick={handleSubmit}>Signin</Button>
 
                     <p className='text-[14px] text-soft-black '>
                         Don&apos;t have an account?
