@@ -1,5 +1,6 @@
 import { Family, FamilyResponseStructure } from "@/app/components/Families";
 import { User } from "@/app/components/Signup";
+import { AttendanceRecord } from "@/app/contexts/AttendanceContext";
 import axios, { AxiosResponse } from "axios";
 import Cookie from "js-cookie"
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
@@ -356,3 +357,31 @@ export async function handleUpdateMember(
         }
     }
 }
+
+
+export async function fetchAttendances(
+    setLoading: React.Dispatch<React.SetStateAction<boolean>>,
+    setError: React.Dispatch<React.SetStateAction<string | null>>,
+    setAttendances: React.Dispatch<React.SetStateAction<Record<string, AttendanceRecord[]> | null>>
+) {
+    try {
+        setLoading(true);
+        setError(null); // Reset error before fetching
+        const response = await axios.get<Record<string, AttendanceRecord[]>>(
+            "http://localhost:3500/attendances/grouped", {
+            headers: {
+                Authorization: `Bearer ${Cookie.get("token")}`
+            }
+        }
+        );
+        setAttendances(response.data);
+    } catch (err: unknown) {
+        if (axios.isAxiosError(err)) {
+            setError(err.message);
+        } else {
+            setError("An unknown error occurred.");
+        }
+    } finally {
+        setLoading(false);
+    }
+};

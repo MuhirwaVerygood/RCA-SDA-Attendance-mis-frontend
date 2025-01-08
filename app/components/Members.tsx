@@ -42,13 +42,13 @@ const Members = () => {
     };
  
     return (
-        <div className="flex flex-col pl-[5%]  pt-[5%]">
+        <div className="flex flex-col pl-[5%]  pt-[5%] ">
             <span className="font-semibold text-[25px] mb-[2%]">Family Members</span>
 
             <div className="w-full py-7 px-4">
                 <NavigationMenu className=" flex items-start w-full">
                     <div className="w-full">
-                        <NavigationMenuList className="flex flex-col justify-start">
+                        <NavigationMenuList className="flex flex-col justify-start ">
                             {families.map((family: Family) => (
                                 <NavigationMenuItem className="w-full " key={family.id}>
                                     <NavigationMenuTrigger
@@ -62,7 +62,7 @@ const Members = () => {
                                         {family.name}
                                     </NavigationMenuTrigger>
                                     {selectedFamilyId === family.id && (
-                                        <div className="mt-4 w-full">
+                                        <div className="mt-4 w-full  ">
                                             <Table className="w-full bg-white">
                                                 <TableHeader>
                                                     <TableRow>
