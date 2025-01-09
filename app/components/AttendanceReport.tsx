@@ -37,24 +37,20 @@ interface AttendanceData {
   family: Family;
 }
 
-const AttendanceReport = () => {
+const AttendanceReport = ({date}:{date: string}) => {
   const [attendanceData, setAttendanceData] = useState<AttendanceRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Helper function to find values in the attendance data
   const findValue = (data: AttendanceData[], familyName: string, key: string): string => {
     const attendance = data.find((item) => item.family.familyName === familyName);
     if (attendance) {
       const value = attendance[key as keyof AttendanceData];
       return value !== undefined && value !== null ? String(value) : "0"; // Ensure valid value
     }
-    return "0"; // Return "0" if not found
+    return "0"; 
   };
 
-
-  // Helper function to calculate the total for the "church" column
-  // Helper function to calculate the total for the "church" column
   function calculateTotal(data: any, feature: string): number {
     const ebenezerValue = Number(findValue(data, "Ebenezer", feature)) || 0; // Default to 0 if invalid
     const salvSibsValue = Number(findValue(data, "Salvation Siblings", feature)) || 0; // Default to 0 if invalid
@@ -67,7 +63,7 @@ const AttendanceReport = () => {
     // Fetch attendance data
     const fetchAttendanceData = async () => {
       try {
-        const response = await fetch("http://localhost:3500/attendances/2025-01-04", {
+        const response = await fetch(`http://localhost:3500/attendances/${date}`, {
           headers: {
             Authorization: `Bearer ${Cookie.get("token")}`,
           },
@@ -97,6 +93,8 @@ const AttendanceReport = () => {
         setLoading(false);
       } catch (err) {
         setError("Failed to fetch data");
+        console.log(err);
+        
         setLoading(false);
       }
     };

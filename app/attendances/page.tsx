@@ -3,7 +3,7 @@ import AttendanceReport from '../components/AttendanceReport'
 const page = () => {
   return (
     <div>
-      <AttendanceReport />
+      {/* <AttendanceReport /> */}
     </div>
   )
 }
