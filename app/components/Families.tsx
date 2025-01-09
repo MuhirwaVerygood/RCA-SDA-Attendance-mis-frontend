@@ -20,7 +20,7 @@ import Image from "next/image";
 import Edit from "../constants/svgs/Edit.svg";
 import Delete from "../constants/svgs/Delete.svg";
 import { Kid, } from "@/lib/features/FamilySlice";
-import { getFamilies, handleAddFamily, handleDeleteFamily, handleSaveChanges, resetFamilyForm } from "../constants/files/Constants";
+import {  handleAddFamily, handleDeleteFamily, handleSaveChanges, resetFamilyForm } from "../constants/files/Constants";
 import { useFamilies } from "../contexts/FamiliesContext";
 export interface Family {
     id: number;

@@ -385,3 +385,31 @@ export async function fetchAttendances(
         setLoading(false);
     }
 };
+
+
+
+export async function getAllMembers(){
+    try {
+        const res = await axios.get("http://localhost:3500/members", {
+            headers: {
+                Authorization: `Bearer ${Cookie.get("token")}`
+            }
+        });
+        return res.data;
+    } catch (error) {
+        console.error("Error fetching members:", error);
+    }
+}
+
+export async function getAttendancesByDate(date: Date){
+    try {
+        const res = await axios.get(`http://localhost:3500/attendances/${date}`, {
+            headers: {
+                Authorization: `Bearer ${Cookie.get("token")}`
+            }
+        });
+        return res.data;
+    } catch (error) {
+        console.error("Error fetching attendances by date:", error);
+    }
+}
