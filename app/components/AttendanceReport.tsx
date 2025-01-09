@@ -4,6 +4,7 @@ import Image from "next/image";
 import Calendar from "../constants/svgs/Calendar.svg";
 import ChurchLogo from "../constants/svgs/ChurchLogo.svg";
 import Cookie from "js-cookie";
+import { Button } from "@/components/ui/button";
 
 // Define types for the structure of each row in the attendance data
 interface AttendanceRow {
@@ -37,7 +38,7 @@ interface AttendanceData {
   family: Family;
 }
 
-const AttendanceReport = ({date}:{date: string}) => {
+const AttendanceReport = ({ date, setIsDialogOpen }: { date: string | null, setIsDialogOpen: React.Dispatch<React.SetStateAction<boolean>> }) => {
   const [attendanceData, setAttendanceData] = useState<AttendanceRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -106,13 +107,13 @@ const AttendanceReport = ({date}:{date: string}) => {
   if (error) return <div>{error}</div>;
 
   return (
-    <div className="bg-soft-white w-[80%] mx-auto px-6 py-5 flex flex-col gap-6">
+    <div className="bg-soft-white w-[100%] mx-auto px-6 py-5 flex flex-col gap-6">
       {/* Header */}
       <div className="flex flex-row justify-between items-center">
         <div className="flex flex-row gap-2 font-semibold">
           <Image src={Calendar} className="w-6 h-6" alt="calendar" />
           <div>
-            <span>Attendance List</span>
+            <span>Attendance List for { date}</span>
           </div>
         </div>
         <div className="flex flex-col items-center">
@@ -135,7 +136,7 @@ const AttendanceReport = ({date}:{date: string}) => {
           <span className="flex justify-center text-white">SALV SIBS</span>
         </div>
         <div className="bg-soft-black px-1 py-1 rounded-md">
-          <span className="flex justify-center text-white">JEHOVAH-NISSI</span>
+          <span className="flex justify-center text-white">JEHOVAH</span>
         </div>
         <div className="bg-soft-black px-1 py-1 rounded-md">
           <span className="flex justify-center text-white">CHURCH</span>
@@ -204,6 +205,9 @@ const AttendanceReport = ({date}:{date: string}) => {
           ))}
         </div>
       </div>
+
+      <Button onClick={() =>setIsDialogOpen(false)}>Cancel</Button>
+
     </div>
   );
 };

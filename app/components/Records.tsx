@@ -11,6 +11,7 @@ import AttendanceReport from "./AttendanceReport";
 const Records = () => {
     const { attendances } = useAttendanceContext();
     const [selectedDate, setSelectedDate] = useState<string | null>(null);
+    const [isDialogOpen, setIsDialogOpen] = useState(false); // Control the dialog's visibility
 
     // Format the date for display
     const formatDate = (date: string) => {
@@ -29,6 +30,7 @@ const Records = () => {
     const handleViewClick = (date: string) => {
         const formattedDate = formatDateForRequest(date);
         setSelectedDate(formattedDate);
+        setIsDialogOpen(true)
     }
 
     return (
@@ -57,7 +59,7 @@ const Records = () => {
                                     <TableCell>{formatDate(record.sabbathDate)}</TableCell>
                                     <TableCell className="text-center">{record.sabbathName}</TableCell>
                                     <TableCell className="flex gap-6 justify-center">
-                                        <AlertDialog>
+                                        <AlertDialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                                             <AlertDialogTrigger asChild>
                                                 <Image
                                                     className="h-6 w-6 cursor-pointer"
@@ -66,15 +68,10 @@ const Records = () => {
                                                     onClick={() => handleViewClick(record.sabbathDate)}
                                                 />
                                             </AlertDialogTrigger>
-                                            <AlertDialogContent>
+                                            <AlertDialogContent className="w-[95%] max-w-4xl h-full overflow-auto bg-white p-6 rounded-lg shadow-lg">
                                                 <div className="relative">
-                                                    <button
-                                                        className="absolute top-4 right-4 text-gray-700"
-                                                        onClick={() => setSelectedDate(null)}
-                                                    >
-                                                        Close
-                                                    </button>
-                                                    {selectedDate && <AttendanceReport date={selectedDate} />}
+
+                                                    {isDialogOpen && <AttendanceReport date={selectedDate} setIsDialogOpen={ setIsDialogOpen} />}
                                                 </div>
                                             </AlertDialogContent>
                                         </AlertDialog>
