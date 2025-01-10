@@ -36,7 +36,7 @@ const Members = () => {
     
     const selectedFamily: any = families.find((family) => family.id === selectedFamilyId);
 
-    const handleEditMember = async (familyId: number, member: any) => {
+    const handleEditMember = async ( member: any) => {
         setEditingMember(member);
         setOpenEditDialog(true);
     };
@@ -91,7 +91,7 @@ const Members = () => {
                                                                     className="h-6 w-6 cursor-pointer"
                                                                     src={Edit}
                                                                     alt="Edit member"
-                                                                    onClick={() => handleEditMember(family.id, member)}
+                                                                    onClick={() => handleEditMember( member)}
                                                                 />
                                                                 <Image
                                                                     className="h-6 w-6 cursor-pointer"

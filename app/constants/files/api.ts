@@ -35,9 +35,7 @@ authorizedAxiosInstance.interceptors.response.use(
     },
     async function (error) {
         if (error.response.data.statusCode === 401 && error.response.data.message === "Unauthorized") {            try {
-            const response = await generateAccessToken();
-            cookies.set('accessToken', response?.data.accessToken);
-            cookies.set('refreshToken', response?.data.refreshToken);
+                const response = await generateAccessToken();
                 if (response?.data.success) {
                     error.config.headers.authorization = `Bearer ${response.data.accessToken}`
                     return authorizedAPI.request(error.config);
@@ -53,9 +51,6 @@ export const generateAccessToken = async () => {
     try {
         const response = await unauthorizedAPI.get(`/auth/refresh`, {
             withCredentials: true,
-            headers: {
-                Authorization: `Bearer ${cookies.get('refreshToken')}`,
-            }
         });
         return response
     } catch (error: any) {

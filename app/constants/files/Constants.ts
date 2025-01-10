@@ -29,8 +29,6 @@ export async function loginUser(user: User, rememberMe: boolean, router: AppRout
     try {
         const res = await unauthorizedAPI.post("/auth/signin", user);
         if (res.status === 201) {
-            Cookies.set('accessToken', res.data.tokens.accessToken);
-            Cookies.set('refreshToken', res.data.tokens.refreshToken);
             toast.success(res.data.message, { position: "top-center" });
             if (rememberMe) {
                 localStorage.setItem('email', user.email);

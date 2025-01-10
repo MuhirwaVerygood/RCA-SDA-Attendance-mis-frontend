@@ -34,7 +34,7 @@ export const AttendanceProvider = ({ children }: { children: ReactNode }) => {
         const fetchData = async () => {
             try {
                 await fetchAttendances(setLoading, setError, setAttendances);
-            } catch (error) {
+            } catch (error: any) {
                 setError(error.message);
             } finally {
                 setLoading(false);

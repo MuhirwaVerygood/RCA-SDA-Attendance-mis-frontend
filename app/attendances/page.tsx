@@ -6,6 +6,7 @@ import {
   AlertDialogContent,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
+import AttendanceTable from "../components/AttendanceTable";
 
 interface GeneralFormAttendance {
   abaje: number;
@@ -122,7 +123,7 @@ const Page = () => {
           </AlertDialogTrigger>
           {dialogType === "table" && (
             <AlertDialogContent>
-              <p>This is the table dialog content.</p>
+              <AttendanceTable />
             </AlertDialogContent>
           )}
         </AlertDialog>

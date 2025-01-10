@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { PDFDownloadLink, Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
 import { Image as PdfImage } from "@react-pdf/renderer"
 import Image from "next/image";
+import { authorizedAPI } from "../constants/files/api";
 
 // Define types for the structure of each row in the attendance data
 interface AttendanceRow {
@@ -71,12 +72,8 @@ const AttendanceReport = ({ date, setIsDialogOpen }: { date: string | null, setI
   useEffect(() => {
     const fetchAttendanceData = async () => {
       try {
-        const response = await fetch(`http://localhost:3500/attendances/${date}`, {
-          headers: {
-            Authorization: `Bearer ${Cookie.get("accessToken")}`,
-          },
-        });
-        const data: AttendanceData[] = await response.json();
+        const response = await authorizedAPI.get(`http://localhost:3500/attendances/${date}`)
+        const data: AttendanceData[] = await response.data;
 
         // Features to include in percentage calculation
         const featuresForPercentage = [
