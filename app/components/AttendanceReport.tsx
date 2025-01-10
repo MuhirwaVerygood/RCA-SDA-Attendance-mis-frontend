@@ -5,7 +5,7 @@ import ChurchLogo from "../constants/svgs/ChurchLogo.svg";
 import Cookie from "js-cookie";
 import { Button } from "@/components/ui/button";
 import { PDFDownloadLink, Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
-import {Image as PdfImage } from "@react-pdf/renderer"
+import { Image as PdfImage } from "@react-pdf/renderer"
 import Image from "next/image";
 
 // Define types for the structure of each row in the attendance data
@@ -15,10 +15,10 @@ interface AttendanceRow {
   salvSibs: string;
   jehovahNissi: string;
   church: number | string;
-  ebenezerPercentage?: number; 
-  salvSibsPercentage?: number; 
-  jehovahNissiPercentage?: number; 
-  churchPercentage?: number; 
+  ebenezerPercentage?: number;
+  salvSibsPercentage?: number;
+  jehovahNissiPercentage?: number;
+  churchPercentage?: number;
 }
 
 // Define the structure of the family data
@@ -55,7 +55,7 @@ const AttendanceReport = ({ date, setIsDialogOpen }: { date: string | null, setI
       const value = attendance[key as keyof AttendanceData];
       return value !== undefined && value !== null ? String(value) : "0"; // Ensure valid value
     }
-    return "0"; 
+    return "0";
   };
 
   function calculateTotal(data: any, feature: string): number {
@@ -73,7 +73,7 @@ const AttendanceReport = ({ date, setIsDialogOpen }: { date: string | null, setI
       try {
         const response = await fetch(`http://localhost:3500/attendances/${date}`, {
           headers: {
-            Authorization: `Bearer ${Cookie.get("token")}`,
+            Authorization: `Bearer ${Cookie.get("accessToken")}`,
           },
         });
         const data: AttendanceData[] = await response.json();
@@ -146,6 +146,7 @@ const AttendanceReport = ({ date, setIsDialogOpen }: { date: string | null, setI
         setAttendanceData(transformedData);
         setLoading(false);
       } catch (err) {
+
         setError("Failed to fetch data");
         console.log(err);
         setLoading(false);
@@ -207,7 +208,7 @@ const AttendanceReport = ({ date, setIsDialogOpen }: { date: string | null, setI
           {/* Header Section with Church Logo */}
           <View style={styles.header}>
             <View style={styles.logoContainer}>
-              <PdfImage src={ChurchLogo}    style={styles.churchLogo} />
+              <PdfImage src={ChurchLogo} style={styles.churchLogo} />
               <Text style={styles.title}>RCA SDA Attendance Report</Text>
             </View>
             <Text style={styles.title}>Date: {date}</Text>
@@ -242,15 +243,15 @@ const AttendanceReport = ({ date, setIsDialogOpen }: { date: string | null, setI
   return (
     <div>
       <PDFDownloadLink
-        document={<AttendancePDF attendanceData={attendanceData} date={date}  />}
+        document={<AttendancePDF attendanceData={attendanceData} date={date} />}
         fileName={`attendance-report-for-${date}.pdf`}
         className="flex justify-end mb-3"
       >
-       <Button >Download</Button>
+        <Button >Download</Button>
       </PDFDownloadLink>
 
 
-      
+
       <div className="bg-soft-white w-[100%] mx-auto px-6 py-5 flex flex-col gap-6">
         {/* Header */}
         <div className="flex flex-row justify-between items-center">
@@ -296,7 +297,11 @@ const AttendanceReport = ({ date, setIsDialogOpen }: { date: string | null, setI
                 key={`feature-${index}`}
                 className="px-5 py-1 border-[1px] border-[#201F1F] rounded-md"
               >
-                <span className="flex justify-center">{row.feature}</span>
+                <span
+                  className={`flex justify-center ${row.feature === "Percentages" ? "font-bold" : ""}`}
+                >
+                  {row.feature}
+                </span>
               </div>
             ))}
           </div>
@@ -321,7 +326,8 @@ const AttendanceReport = ({ date, setIsDialogOpen }: { date: string | null, setI
                 className="px-1 py-1 border-[1px] border-[#201F1F] rounded-md"
               >
                 <span className="flex justify-center">{row.salvSibs}</span>
-              </div>
+
+                </div>
             ))}
           </div>
 

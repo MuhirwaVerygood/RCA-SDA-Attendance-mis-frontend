@@ -2,8 +2,6 @@
 import React, { useEffect, useState } from "react";
 import ChartArrowRise from "../constants/svgs/ChartArrowRise.svg";
 import Image from "next/image";
-import { Family } from "./Families";
-import { getFamilies } from "../constants/files/Constants";
 import { useFamilies } from "../contexts/FamiliesContext";
 
 const Landing = () => {

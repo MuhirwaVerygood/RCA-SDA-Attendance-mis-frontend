@@ -48,7 +48,7 @@ export default function RootLayout({
             {!hideLayout ? (
               <div
                 className="flex flex-row w-full overflow-hidden"
-                style={{ height: "calc(100vh - 40px)", marginTop: "40px" }}
+                style={{ height: "calc(100vh - 50px)", marginTop: "50px" }}
               >
                 <div className={`${showSidebar ? "w-20%" : "w-0"} bg-green-400`}>
                   <AppSidebar />

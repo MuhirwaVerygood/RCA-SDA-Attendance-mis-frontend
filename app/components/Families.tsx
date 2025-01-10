@@ -121,7 +121,7 @@ const Families = () => {
             {/* Add Family Dialog */}
             <AlertDialog open={openAddDialog} onOpenChange={setOpenAddDialog}>
                 <AlertDialogTrigger asChild>
-                    <Button className="w-[15%]">Add Family</Button>
+                     <Button className="w-[15%]">Add Family</Button>
                 </AlertDialogTrigger>
                 <AlertDialogContent>
                     <h3 className="font-semibold text-xl mb-4 text-center">Add a New Family</h3>

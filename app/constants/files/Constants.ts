@@ -2,70 +2,73 @@ import { Family, FamilyResponseStructure } from "@/app/components/Families";
 import { User } from "@/app/components/Signup";
 import { AttendanceRecord } from "@/app/contexts/AttendanceContext";
 import axios, { AxiosResponse } from "axios";
-import Cookie from "js-cookie"
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import toast from "react-hot-toast";
-
+import { authorizedAPI, unauthorizedAPI } from "./api";
+import Cookies from "js-cookie";
 export async function registerUser(formData: User, router: AppRouterInstance) {
-     try {
-                const res = await axios.post("http://localhost:3500/users/signup", formData);
-                console.log(res.status);
-                if (res.status == 201) {
-                    toast.success(res.data.message, { position: "top-center" })
-                    router.replace("/signin")
-                }
-    
-            } catch (error: any) {
-                console.log(error.response.data.statusCode);
-    
-                if (error.response.data.statusCode == 409) {
-                    toast.error(error.response.data.message, { position: "top-center" })
-                }
-            }
-}
-
-
-export async function loginUser(user: User ,rememberMe: boolean , router: AppRouterInstance ) {
     try {
-                const res = await axios.post("http://localhost:3500/users/signin", user);
-                console.log(res.status);
-                if (res.status === 200) {
-                    Cookie.set("token", res.data.token);
-                    toast.success(res.data.message, { position: "top-center" });
-    
-                    if (rememberMe) {
-                        localStorage.setItem('email', user.email);
-                        localStorage.setItem('password', user.password);
-                    } else {
-                        localStorage.removeItem('email');
-                        localStorage.removeItem('password');
-                    }
-                }
-    
-                res.data.user.isAdmin ? router.replace("/admin-landing") : "";
-            } catch (error: any) {
-                console.log(error.response.data.statusCode);
-    
-                if (error.response.data.statusCode === 401) {
-                    toast.error(error.response.data.message, { position: "top-center" })
-                }
-            }
+        const res = await unauthorizedAPI.post("/auth/signup", formData);
+        console.log(res.status);
+        if (res.status == 201) {
+            toast.success(res.data.message, { position: "top-center" })
+            res.data.user.isAdmin ? router.replace("/admin-landing") : "";
+        }
+
+    } catch (error: any) {
+        console.log(error.response.data.statusCode);
+
+        if (error.response.data.statusCode == 409) {
+            toast.error(error.response.data.message, { position: "top-center" })
+        }
+    }
 }
+
+
+export async function loginUser(user: User, rememberMe: boolean, router: AppRouterInstance) {
+    try {
+        const res = await unauthorizedAPI.post("/auth/signin", user);
+        if (res.status === 201) {
+            Cookies.set('accessToken', res.data.tokens.accessToken);
+            Cookies.set('refreshToken', res.data.tokens.refreshToken);
+            toast.success(res.data.message, { position: "top-center" });
+            if (rememberMe) {
+                localStorage.setItem('email', user.email);
+                localStorage.setItem('password', user.password);
+            } else {
+                localStorage.removeItem('email');
+                localStorage.removeItem('password');
+            }
+        }
+
+        res.data.user.isAdmin ? router.replace("/admin-landing") : "";
+    } catch (error: any) {
+        console.log(error);
+
+        // console.log(error.response.data.statusCode);
+
+
+        if (error.response.data.statusCode === 401) {
+            toast.error(error.response.data.message, { position: "top-center" })
+        }
+    }
+}
+
 
 export function convertFamilyToFamilyData(res: AxiosResponse<any, any>) {
     const familyData = res.data.map((family: FamilyResponseStructure) => ({
-                   id: family.id,
-                   name: family.familyName,
-                   father: family.father,
-                   mother: family.mother,
-                   members: family.members,
-                   kids: family.members.length,
-     })); 
+        id: family.id,
+        name: family.familyName,
+        father: family.father,
+        mother: family.mother,
+        members: family.members,
+        kids: family.members.length,
+    }));
     return familyData;
 }
 
 export function getTotalMemberCount(familyData: any) {
-   return familyData.reduce((acc: number, family: FamilyResponseStructure) => {
+    return familyData.reduce((acc: number, family: FamilyResponseStructure) => {
         return acc + family.members.length;
     }, 0);
 }
@@ -74,25 +77,22 @@ export async function getFamilies(
     setFamilies: (value: React.SetStateAction<Family[]>) => void,
     setTotalMembers: (value: React.SetStateAction<number>) => void) {
     try {
-                const res = await axios.get("http://localhost:3500/families", {
-                    headers: {
-                        Authorization: `Bearer ${Cookie.get("token")}`
-                    }
-                });
-    
-                const familyData = convertFamilyToFamilyData(res)
-    
-                const totalMembersCount = getTotalMemberCount(familyData)
-    
-                setTotalMembers(totalMembersCount);
-    
-                const sortedFamilies: Family[] = familyData.sort(
-                    (a: Family, b: Family) => a.id - b.id
-                );
-                setFamilies(sortedFamilies);
-            } catch (error) {
-                console.error("Error fetching families:", error);
-            }
+        const res = await authorizedAPI.get("/families");
+
+
+        const familyData = convertFamilyToFamilyData(res)
+
+        const totalMembersCount = getTotalMemberCount(familyData)
+
+        setTotalMembers(totalMembersCount);
+
+        const sortedFamilies: Family[] = familyData.sort(
+            (a: Family, b: Family) => a.id - b.id
+        );
+        setFamilies(sortedFamilies);
+    } catch (error) {
+        console.error("Error fetching families:", error);
+    }
 }
 export async function handleAddFamily(
     familyForm: Family,
@@ -102,17 +102,12 @@ export async function handleAddFamily(
 ) {
     if (familyForm.name && familyForm.father && familyForm.mother) {
         try {
-            const res = await axios.post(
-                "http://localhost:3500/families",
+            const res = await authorizedAPI.post(
+                "/families",
                 {
                     familyName: familyForm.name,
                     father: familyForm.father,
                     mother: familyForm.mother,
-                },
-                {
-                    headers: {
-                        Authorization: `Bearer ${Cookie.get("token")}`,
-                    },
                 }
             );
             if (res.status === 201) {
@@ -158,17 +153,12 @@ export async function handleSaveChanges(
 ) {
     if (familyForm && selectedFamily) {
         try {
-            const res = await axios.put(
-                `http://localhost:3500/families/${selectedFamily.id}`,
+            const res = await authorizedAPI.put(
+                `/families/${selectedFamily.id}`,
                 {
                     familyName: familyForm.name,
                     father: familyForm.father,
                     mother: familyForm.mother,
-                },
-                {
-                    headers: {
-                        Authorization: `Bearer ${Cookie.get("token")}`,
-                    },
                 }
             );
             if (res.status === 200) {
@@ -191,19 +181,14 @@ export async function handleSaveChanges(
 export async function handleDeleteFamily(
     selectedFamily: Family | null,
     families: Family[],
-    setFamilies: React.Dispatch<React.SetStateAction<Family[]>>, 
+    setFamilies: React.Dispatch<React.SetStateAction<Family[]>>,
     setSelectedFamily: React.Dispatch<React.SetStateAction<Family | null>>,
     setOpenDeleteDialog: React.Dispatch<React.SetStateAction<boolean>>
-){
+) {
     if (selectedFamily) {
         try {
-            const res = await axios.delete(
-                `http://localhost:3500/families/${selectedFamily.id}`,
-                {
-                    headers: {
-                        Authorization: `Bearer ${Cookie.get("token")}`,
-                    },
-                }
+            const res = await authorizedAPI.delete(
+                `/families/${selectedFamily.id}`,
             );
             if (res.status === 200) {
                 toast.success("Family deleted successfully", { position: "top-center" });
@@ -228,10 +213,7 @@ export async function handleDeleteMember(
     setFamilies: React.Dispatch<React.SetStateAction<Family[]>>
 ) {
     try {
-        await axios.delete(`http://localhost:3500/members/member/${memberId}`, {
-            headers: {
-                Authorization: `Bearer ${Cookie.get("token")}`,
-            },
+        await authorizedAPI.delete(`/members/member/${memberId}`, {
         });
 
         const updatedMembers = selectedFamily.members.filter(
@@ -243,7 +225,7 @@ export async function handleDeleteMember(
                 family.id === updatedFamily.id ? updatedFamily : family
             )
         );
-        toast.success("Member deleted successfully", { position:"top-center"});
+        toast.success("Member deleted successfully", { position: "top-center" });
     } catch (error) {
         console.error("Error deleting member:", error);
     }
@@ -271,14 +253,9 @@ export async function handleAddMember(
         };
 
         try {
-            const res = await axios.post(
-                `http://localhost:3500/members/${selectedFamily.id}`,
-                newMemberData,
-                {
-                    headers: {
-                        Authorization: `Bearer ${Cookie.get("token")}`,
-                    },
-                }
+            const res = await authorizedAPI.post(
+                `/members/${selectedFamily.id}`,
+                newMemberData
             );
 
             if (res.status === 201) {
@@ -293,7 +270,7 @@ export async function handleAddMember(
                 );
                 setNewMember({ name: "", class: "" });
                 setOpenAddDialog(false);
-                toast.success("Member added successfully", { position: "top-center"})
+                toast.success("Member added successfully", { position: "top-center" })
             }
         } catch (error) {
             console.error("Error adding member:", error);
@@ -315,22 +292,15 @@ export async function handleUpdateMember(
     setTotalMembers: React.Dispatch<React.SetStateAction<number>>
 ) {
     if (editingMember) {
-        console.log("Reached here");
-
         const updatedMemberData = {
             name: newMember.name,
             class: newMember.class,
         };
 
         try {
-            const res = await axios.put(
-                `http://localhost:3500/members/member/${editingMember.id}`,
-                updatedMemberData,
-                {
-                    headers: {
-                        Authorization: `Bearer ${Cookie.get("token")}`,
-                    },
-                }
+            const res = await authorizedAPI.put(
+                `/members/member/${editingMember.id}`,
+                updatedMemberData
             );
 
             if (res.status === 200) {
@@ -367,12 +337,8 @@ export async function fetchAttendances(
     try {
         setLoading(true);
         setError(null); // Reset error before fetching
-        const response = await axios.get<Record<string, AttendanceRecord[]>>(
-            "http://localhost:3500/attendances/grouped", {
-            headers: {
-                Authorization: `Bearer ${Cookie.get("token")}`
-            }
-        }
+        const response = await authorizedAPI.get<Record<string, AttendanceRecord[]>>(
+            "/attendances/grouped",
         );
         setAttendances(response.data);
     } catch (err: unknown) {
@@ -388,26 +354,20 @@ export async function fetchAttendances(
 
 
 
-export async function getAllMembers(){
+export async function getAllMembers() {
     try {
-        const res = await axios.get("http://localhost:3500/members", {
-            headers: {
-                Authorization: `Bearer ${Cookie.get("token")}`
-            }
-        });
+        const res = await authorizedAPI.get("/members");
         return res.data;
     } catch (error) {
         console.error("Error fetching members:", error);
     }
 }
 
-export async function getAttendancesByDate(date: Date){
+export async function getAttendancesByDate(date: Date) {
     try {
-        const res = await axios.get(`http://localhost:3500/attendances/${date}`, {
-            headers: {
-                Authorization: `Bearer ${Cookie.get("token")}`
-            }
-        });
+        const res = await authorizedAPI.get(`/attendances/${date}`,
+
+        );
         return res.data;
     } catch (error) {
         console.error("Error fetching attendances by date:", error);
