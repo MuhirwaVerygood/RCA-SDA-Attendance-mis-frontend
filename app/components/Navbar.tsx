@@ -1,4 +1,5 @@
-import React from "react";
+"use client"
+import React, { useState } from "react";
 import Notification from "../../app/constants/svgs/Notification.svg";
 import Image from "next/image";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -14,7 +15,14 @@ import SignOut from "../constants/svgs/SignOut.svg";
 import UserLogo from "../constants/svgs/User.svg";
 import About from "../constants/svgs/About.svg";
 import Profile from "../constants/svgs/Profile.svg";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 const Navbar = () => {
+
+    const [openEditProfite, setOpenEditProfileDialog] = useState<boolean>(false);
+    const showEditProfileDialog = () => {
+        setOpenEditProfileDialog(true);
+    }
+
     return (
         <header className="fixed top-0 left-0 z-50 w-full h-[50px] bg-soft-white shadow-custom flex justify-between items-center px-[2%]">
             {/* Left Section: App Title */}
@@ -32,9 +40,9 @@ const Navbar = () => {
                 />
 
                 {/* User Menu */}
-                <Menubar className="hover:outline-none active:outline-none">
+                <Menubar className="hover:outline-none active:outline-none focus:outline-none">
                     <MenubarMenu>
-                        <MenubarTrigger>
+                        <MenubarTrigger >
                             <Avatar className="flex">
                                 <AvatarImage src={Profile.src}  />
                                 <AvatarFallback>CN</AvatarFallback>
@@ -44,7 +52,20 @@ const Navbar = () => {
                             {/* Profile Option */}
                             <div className="flex items-center gap-2">
                                 <Image src={UserLogo} alt="Profile Icon" className="h-4 w-4" />
-                                <MenubarItem className="cursor-pointer hover:outline-none">Profile</MenubarItem>
+                                <Dialog>
+                                    <DialogTrigger asChild>
+                                        <MenubarItem className="cursor-pointer hover:outline-none">Profile</MenubarItem>
+                                    </DialogTrigger>
+                                    <DialogContent>
+                                        <DialogHeader>
+                                            <DialogTitle>Are you absolutely sure?</DialogTitle>
+                                            <DialogDescription>
+                                                This action cannot be undone. This will permanently delete your account
+                                                and remove your data from our servers.
+                                            </DialogDescription>
+                                        </DialogHeader>
+                                    </DialogContent>
+                                </Dialog>
                             </div>
                             <hr />
 
