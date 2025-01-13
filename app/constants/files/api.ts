@@ -1,6 +1,5 @@
 import axios, { AxiosInstance } from "axios";
 import { Cookies } from 'react-cookie';
-import { toast } from "react-hot-toast";
 const cookies = new Cookies();
 const API_URL = process.env.API_URL || "http://localhost:3500";
 const commonHeaders = {
@@ -34,8 +33,13 @@ authorizedAxiosInstance.interceptors.response.use(
         return response;
     },
     async function (error) {
-        if (error.response.data.statusCode === 401 && error.response.data.message === "Unauthorized") {            try {
+        
+        
+
+        if (error.response.data.statusCode === 401 && error.response.data.message === "Unauthorized") {
+            try {
                 const response = await generateAccessToken();
+                console.log("Reached here");
                 if (response?.data.success) {
                     error.config.headers.authorization = `Bearer ${response.data.accessToken}`
                     return authorizedAPI.request(error.config);
@@ -54,8 +58,8 @@ export const generateAccessToken = async () => {
         });
         return response
     } catch (error: any) {
-        console.error(error);
-        toast.error(error?.response?.data?.error?.message);
+        console.log(error);
+        
     }
 };
 export const unauthorizedAPI = unauthorizedAxiosInstance;

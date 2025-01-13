@@ -4,6 +4,7 @@ import {
   AlertDialog,
   AlertDialogTrigger,
   AlertDialogContent,
+  AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import AttendanceTable from "../components/AttendanceTable";
@@ -55,6 +56,9 @@ const Page = () => {
     abashyitsi: 0
   });
 
+
+
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData({
@@ -69,7 +73,7 @@ const Page = () => {
   };
 
   return (
-    <div className="pt-[2%] pl-[5%] w-[40%]">
+    <div className="pt-[2%] pl-[5%] ss:w-[100%] sm:w-[80%]  xl:w-[40%]">
       <h3 className="text-lg font-bold tracking-widest">Take Attendance</h3>
       <div className="bg-soft-white flex flex-col items-center px-3 py-8 mt-5 space-y-3">
         <span className="flex justify-center">You can take attendance in two ways:</span>
@@ -82,8 +86,8 @@ const Page = () => {
             </Button>
           </AlertDialogTrigger>
           {dialogType === "form" && (
-            <AlertDialogContent>
-              <form className="grid grid-cols-2 gap-4">
+            <AlertDialogContent className="max-h-[80vh] overflow-y-auto">
+              <form className="md:grid md:grid-cols-2 md:gap-4 ss:flex ss:flex-col ss:space-y-3 md:space-y-0 ">
                 {Object.keys(formData).map((key) => (
                   <div key={key} className="flex flex-col">
                     <label className="text-sm font-medium" htmlFor={key}>
@@ -122,8 +126,8 @@ const Page = () => {
             </Button>
           </AlertDialogTrigger>
           {dialogType === "table" && (
-            <AlertDialogContent>
-              <AttendanceTable />
+            <AlertDialogContent className="max-h-[80vh] min-w-[100%]  overflow-y-auto">
+              <AttendanceTable  setDialogType={setDialogType}/>
             </AlertDialogContent>
           )}
         </AlertDialog>

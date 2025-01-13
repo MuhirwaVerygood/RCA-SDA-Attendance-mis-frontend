@@ -2,7 +2,6 @@
 import React, { useEffect, useState } from "react";
 import Calendar from "../constants/svgs/Calendar.svg";
 import ChurchLogo from "../constants/svgs/ChurchLogo.svg";
-import Cookie from "js-cookie";
 import { Button } from "@/components/ui/button";
 import { PDFDownloadLink, Document, Page, Text, View, StyleSheet } from '@react-pdf/renderer';
 import { Image as PdfImage } from "@react-pdf/renderer"

@@ -5,7 +5,7 @@ import axios, { AxiosResponse } from "axios";
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import toast from "react-hot-toast";
 import { authorizedAPI, unauthorizedAPI } from "./api";
-import Cookies from "js-cookie";
+import { Member } from "@/app/components/AttendanceTable";
 export async function registerUser(formData: User, router: AppRouterInstance) {
     try {
         const res = await unauthorizedAPI.post("/auth/signup", formData);
@@ -352,14 +352,7 @@ export async function fetchAttendances(
 
 
 
-export async function getAllMembers() {
-    try {
-        const res = await authorizedAPI.get("/members");
-        return res.data;
-    } catch (error) {
-        console.error("Error fetching members:", error);
-    }
-}
+
 
 export async function getAttendancesByDate(date: Date) {
     try {
@@ -369,5 +362,22 @@ export async function getAttendancesByDate(date: Date) {
         return res.data;
     } catch (error) {
         console.error("Error fetching attendances by date:", error);
+    }
+}
+
+
+
+export async function getAllMembers(): Promise<Member[]> {
+    try {
+        const res = await authorizedAPI.get("/members");
+
+        if (res.status === 200) {
+            return res.data; // Return the fetched members
+        }
+
+        return []; // Return an empty array if the response status is not 200
+    } catch (error) {
+        console.error("Error fetching members:", error);
+        return []; // Return an empty array in case of an error
     }
 }
