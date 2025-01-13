@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { getAllMembers } from "../constants/files/Constants";
 import { Button } from "@/components/ui/button";
-
 interface Family {
   id: number;
   familyName: string;
@@ -33,7 +32,6 @@ const AttendanceTable = ({ setDialogType }: { setDialogType: React.Dispatch<Reac
   const [members, setMembers] = useState<Member[]>([]);
   const [attendance, setAttendance] = useState<IndividualAttendance[]>([]);
   const [abashyitsiCount, setAbashyitsiCount] = useState<number>(0);
-
   useEffect(() => {
     getAllMembers().then((fetchedMembers: Member[]) => {
       setMembers(fetchedMembers);
@@ -84,13 +82,14 @@ const AttendanceTable = ({ setDialogType }: { setDialogType: React.Dispatch<Reac
     
   }
 
+
   return (
     <div className="overflow-x-auto">
       <form onSubmit={handleSubmission}>
         <table className="table-auto border-collapse border border-gray-300 w-full">
           <thead>
             <tr className="bg-gray-200">
-              <th className="border border-gray-300 px-4 py-2">Member ID</th>
+              <th className="border border-gray-300 px-4 py-2 ">Member ID</th>
               <th className="border border-gray-300 px-4 py-2">Member Name</th>
               <th className="border border-gray-300 px-4 py-2">Yaje</th>
               <th className="border border-gray-300 px-4 py-2">Yarasuye</th>
@@ -110,13 +109,14 @@ const AttendanceTable = ({ setDialogType }: { setDialogType: React.Dispatch<Reac
                 .sort((a, b) => a.name.localeCompare(b.name))
                 .map((member, index) => (
                   <tr key={member.id} className="hover:bg-gray-100">
-                    <td className="border border-gray-300 px-4 py-2">{index + 1}</td>
+                    <td className="border border-gray-300 px-4 py-2 text-center">{index + 1}</td>
                     <td className="border border-gray-300 px-4 py-2">{member.name}</td>
                     {Object.keys(attendance[0] || {})
                       .filter((key) => key !== "memberId")
                       .map((field) => (
                         <td
-                          className="border border-gray-300 px-4 py-2 text-center cursor-pointer"
+                          className="border border-gray-300 px-4 py-2 
+                          text-center cursor-pointer"
                           key={field}
                           onClick={() => handleCheckboxChange(member.id, field as keyof IndividualAttendance)}
                         >
@@ -128,7 +128,9 @@ const AttendanceTable = ({ setDialogType }: { setDialogType: React.Dispatch<Reac
                               ] ?? false) as boolean
                             }
                             onChange={() => { }} // Optional: Prevent default behavior since `onClick` handles it
-                            className="pointer-events-none" // Prevent direct interaction with the checkbox
+                            // Prevent direct interaction with the checkbox
+                            className=" pointer-events-none w-4 h-4 rounded-sm border-2 border-gray-400 bg-black checked:bg-black checked:border-black checked:accent-black"
+
                           />
                         </td>
 

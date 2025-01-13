@@ -16,12 +16,28 @@ import UserLogo from "../constants/svgs/User.svg";
 import About from "../constants/svgs/About.svg";
 import Profile from "../constants/svgs/Profile.svg";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { authorizedAPI } from "../constants/files/api";
+import { useRouter } from "next/navigation";
 const Navbar = () => {
 
     const [openEditProfite, setOpenEditProfileDialog] = useState<boolean>(false);
     const showEditProfileDialog = () => {
         setOpenEditProfileDialog(true);
     }
+
+    const router = useRouter()
+
+    const handleLogout = async () => {
+        try {
+            const res = await authorizedAPI.get("/auth/logout");
+            if (res.status == 200) {
+                router.replace("/")
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
 
     return (
         <header className="fixed top-0 left-0 z-50 w-full h-[50px] bg-soft-white shadow-custom flex justify-between items-center px-[2%]">
@@ -63,7 +79,9 @@ const Navbar = () => {
                                                 This action cannot be undone. This will permanently delete your account
                                                 and remove your data from our servers.
                                             </DialogDescription>
+
                                         </DialogHeader>
+                                        helllo world 
                                     </DialogContent>
                                 </Dialog>
                             </div>
@@ -79,9 +97,9 @@ const Navbar = () => {
                             {/* Logout Option */}
                             <div className="flex items-center gap-2">
                                 <Image src={SignOut} alt="Logout Icon" className="h-4 w-4" />
-                                <MenubarItem className="cursor-pointer hover:outline-none">Logout</MenubarItem>
+                                <MenubarItem className="cursor-pointer hover:outline-none" onClick={handleLogout}>Logout</MenubarItem>
                             </div>
-
+        
                             <MenubarSeparator />
                         </MenubarContent>
                     </MenubarMenu>
