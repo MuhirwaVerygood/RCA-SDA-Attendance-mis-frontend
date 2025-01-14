@@ -14,6 +14,7 @@ import ThreeUsers from ".././app/constants/svgs/UsersThree.svg"
 import Notebook from ".././app/constants/svgs/Notebook.svg"
 import NotePencil from ".././app/constants/svgs/NotePencil.svg"
 import User from ".././app/constants/svgs/User.svg"
+import UserPlus from ".././app/constants/svgs/UserPlus.svg"
 import Gear from ".././app/constants/svgs/Gear.svg"
 import Image from "next/image";
 
@@ -47,6 +48,11 @@ const items = [
     {
         title: "SETTINGS",
         subItems: [
+            {
+                title: "Add Admin/Father",
+                url: "/settings",
+                image: UserPlus
+            },
             {
                 title: "Settings",
                 url: "/settings",

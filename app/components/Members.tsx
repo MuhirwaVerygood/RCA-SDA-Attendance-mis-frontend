@@ -50,7 +50,7 @@ const Members = () => {
                     <div className="w-full">
                         <NavigationMenuList className="flex flex-col justify-start ">
                             {families.map((family: Family) => (
-                                <NavigationMenuItem className="w-full " key={family.id}>
+                                <NavigationMenuItem className=" w-full  " key={family.id}>
                                     <NavigationMenuTrigger
                                         className="flex text-start self-start"
                                         onClick={() =>
@@ -77,6 +77,7 @@ const Members = () => {
                                                         </TableHead>
                                                         <TableHead className="font-semibold text-black">
                                                             Actions
+                                                
                                                         </TableHead>
                                                     </TableRow>
                                                 </TableHeader>
@@ -86,7 +87,7 @@ const Members = () => {
                                                             <TableCell>{index + 1}</TableCell>
                                                             <TableCell>{member.name}</TableCell>
                                                             <TableCell>{member.class}</TableCell>
-                                                            <TableCell className="flex gap-4">
+                                                            <TableCell className="flex gap-5">
                                                                 <Image
                                                                     className="h-6 w-6 cursor-pointer"
                                                                     src={Edit}

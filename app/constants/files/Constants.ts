@@ -28,8 +28,9 @@ export async function registerUser(formData: User, router: AppRouterInstance) {
 export async function loginUser(user: User, rememberMe: boolean, router: AppRouterInstance) {
     try {
         const res = await unauthorizedAPI.post("/auth/signin", user);
-        if (res.status === 201) {
-            toast.success(res.data.message, { position: "top-center" });
+        if (res.status === 200) {
+            toast.success("Logged in successfully", { position: "top-center" });
+            
             if (rememberMe) {
                 localStorage.setItem('email', user.email);
                 localStorage.setItem('password', user.password);
@@ -39,7 +40,7 @@ export async function loginUser(user: User, rememberMe: boolean, router: AppRout
             }
         }
 
-        res.data.user.isAdmin ? router.replace("/admin-landing") : "";
+                res.data.user.isAdmin ? router.replace("/admin-landing") : "";
     } catch (error: any) {
         console.log(error);
 
@@ -106,6 +107,11 @@ export async function handleAddFamily(
                     familyName: familyForm.name,
                     father: familyForm.father,
                     mother: familyForm.mother,
+                    father_email: familyForm.father_email,
+                    mother_email: familyForm.mother_email,
+                    mother_class: familyForm.mother_class,
+                    father_class: familyForm.father_class,
+                    password: "securePassword123"
                 }
             );
             if (res.status === 201) {

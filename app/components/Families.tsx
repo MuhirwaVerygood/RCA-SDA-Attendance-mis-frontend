@@ -27,6 +27,10 @@ export interface Family {
     name: string;
     father: string;
     mother: string;
+    father_email?: string,
+    mother_email?: string,
+    mother_class?: string,
+    father_class?: string,
     members?: Kid[];
     kids: number;
 }
@@ -50,6 +54,10 @@ const Families = () => {
         name: "",
         father: "",
         mother: "",
+        father_email: "",
+        mother_email: "",
+        father_class: "",
+        mother_class:"",
         kids: 0,
     });
     const { families, setTotalMembers, setFamilies } = useFamilies();
@@ -141,11 +149,39 @@ const Families = () => {
                             placeholder="Father's Name"
                         />
                         <Input
+                            type="email"
+                            name="father_email"
+                            value={familyForm.father_email}
+                            onChange={handleFormChange}
+                            placeholder="Father's Email"
+                        />
+                        <Input
+                            type="email"
+                            name="father_class"
+                            value={familyForm.father_class}
+                            onChange={handleFormChange}
+                            placeholder="Father's class"
+                        />
+                        <Input
                             type="text"
                             name="mother"
                             value={familyForm.mother}
                             onChange={handleFormChange}
                             placeholder="Mother's Name"
+                        />
+                        <Input
+                            type="email"
+                            name="mother_email"
+                            value={familyForm.mother_email}
+                            onChange={handleFormChange}
+                            placeholder="Mother's Email"
+                        />
+                        <Input
+                            type="email"
+                            name="mother_class"
+                            value={familyForm.mother_class}
+                            onChange={handleFormChange}
+                            placeholder="Mother's class"
                         />
 
                         <Button onClick={() => setOpenAddDialog(false)}>Close</Button>
