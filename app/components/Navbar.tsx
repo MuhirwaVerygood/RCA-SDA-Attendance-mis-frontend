@@ -25,10 +25,15 @@ import {
 } from "@/components/ui/dialog";
 import { authorizedAPI } from "../constants/files/api";
 import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import ProfileInputField from "./ProfileInputField";
+import { CldImage } from 'next-cloudinary';
+import axios from "axios";
 
 const Navbar = () => {
     const [openEditProfite, setOpenEditProfileDialog] = useState<boolean>(false);
 
+    const cloudinary_url =" http://cloudinary://679517291878122:NMWFO@dmx4rq1cv"
     const handleLogout = async () => {
         try {
             const res = await authorizedAPI.get("/auth/logout");
@@ -41,6 +46,33 @@ const Navbar = () => {
     };
 
     const router = useRouter();
+
+
+
+    const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+
+        const uploadPreset = "RCA-SDA Profile preset";
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("upload_preset", uploadPreset);
+
+        formData.append("cloud_name", "dmx4rq1cv")
+        fetch(`https://api.cloudinary.com/v1_1/dmx4rq1cv/image/upload`, {
+            method: "post",
+            body: formData,
+        })
+            .then((res) => res.json())
+            .then((data) => {
+                console.log(data.secure_url);
+            })
+            .catch((err) => {
+                console.log(err);
+            });
+    }
+
+
 
     return (
         <header className="fixed top-0 left-0 z-50 w-full h-[50px] bg-soft-white shadow-custom flex justify-between items-center px-[2%]">
@@ -98,16 +130,46 @@ const Navbar = () => {
                                     <DialogContent>
                                         <DialogHeader>
                                             <DialogTitle>
-                                                Are you absolutely sure?
-                                            </DialogTitle>
-                                            <DialogDescription>
-                                                This action cannot be undone. This
-                                                will permanently delete your account
-                                                and remove your data from our
-                                                servers.
-                                            </DialogDescription>
+                                                Profile Picture
+                                            </DialogTitle>     
                                         </DialogHeader>
-                                        <p>Hello world</p>
+                                        <div className="flex flex-row items-center justify-between">
+                                            <Image src={Profile} alt="User profile" />
+                                            <div className="flex gap-5 items-center">
+                                                <div>
+                                                    <label htmlFor="upload-button" className="cursor-pointer bg-black  text-white py-2 px-4 rounded">
+                                                        Change Picture
+                                                    </label>
+                                                    <input
+                                                        id="upload-button"
+                                                        type="file"
+                                                        accept="image/*"
+                                                        className="hidden"
+                                                        onChange={handleFileUpload}
+                                                    />
+                                                </div>
+
+                                                <Button className=" bg-[#D3DDE7] text-red-600">Delete Picture</Button>
+                                            </div>
+                                        </div>
+
+                                        <ProfileInputField  label="Profile name" value="Verygood Muhirwa"/>
+                                        <ProfileInputField  label="Username" value="Verygood "/>
+                                        <ProfileInputField label="Post in Church" value="Umukuru w'Itorero" />
+                                        <div className="flex justify-end">
+                                            <Button disabled className="w-[30%]" >Save changes</Button>
+                                        </div>
+
+                                        {/* <CldImage
+                                            src="cld-sample-5" // Use this sample image or upload your own via the Media Explorer
+                                            width="500" // Transform the image: auto-crop to square aspect_ratio
+                                            height="500"
+                                            crop={{
+                                                type: 'auto',
+                                                source: true
+                                            }}
+                                            alt="User image"
+                                        /> */}
                                     </DialogContent>
                                 </Dialog>
                             </div>
