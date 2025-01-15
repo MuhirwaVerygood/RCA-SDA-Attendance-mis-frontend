@@ -27,13 +27,11 @@ import { authorizedAPI } from "../constants/files/api";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import ProfileInputField from "./ProfileInputField";
-import { CldImage } from 'next-cloudinary';
-import axios from "axios";
 
 const Navbar = () => {
     const [openEditProfite, setOpenEditProfileDialog] = useState<boolean>(false);
+    const [profileImage, setProfileImage] = useState<string>("")
 
-    const cloudinary_url =" http://cloudinary://679517291878122:NMWFO@dmx4rq1cv"
     const handleLogout = async () => {
         try {
             const res = await authorizedAPI.get("/auth/logout");
@@ -53,23 +51,28 @@ const Navbar = () => {
         const file = e.target.files && e.target.files[0];
         if (!file) return;
 
-        const uploadPreset = "RCA-SDA Profile preset";
-        const formData = new FormData();
-        formData.append("file", file);
-        formData.append("upload_preset", uploadPreset);
+        if (file.type === "image/jpeg" || file.type === "image/png") {
 
-        formData.append("cloud_name", "dmx4rq1cv")
-        fetch(`https://api.cloudinary.com/v1_1/dmx4rq1cv/image/upload`, {
-            method: "post",
-            body: formData,
-        })
-            .then((res) => res.json())
-            .then((data) => {
-                console.log(data.secure_url);
+            const uploadPreset = "RCA-SDA Profile preset";
+            const formData = new FormData();
+            formData.append("file", file);
+            formData.append("upload_preset", uploadPreset);
+
+            formData.append("cloud_name", "dmx4rq1cv")
+            fetch(`https://api.cloudinary.com/v1_1/dmx4rq1cv/image/upload`, {
+                method: "post",
+                body: formData,
             })
-            .catch((err) => {
-                console.log(err);
-            });
+                .then((res) => res.json())
+                .then((data) => {
+                    console.log(data.secure_url);
+                })
+                .catch((err) => {
+                    console.log(err);
+                });
+        } else {
+            return;
+        }
     }
 
 
