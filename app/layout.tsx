@@ -11,6 +11,7 @@ import { FamiliesProvider } from "./contexts/FamiliesContext";
 import StoreProvider from "./StoreProvider";
 import { useState } from "react";
 import { AttendanceProvider } from "./contexts/AttendanceContext";
+import { UserProvider } from "./contexts/UserContext";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -40,36 +41,38 @@ export default function RootLayout({
   return (
     <html lang="en">
       <StoreProvider>
-        <body
-          className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-        >
-          {!hideLayout && <Navbar />}
-          <SidebarProvider>
-            {!hideLayout ? (
-              <div
-                className="flex flex-row w-full overflow-hidden"
-                style={{ height: "calc(100vh - 50px)", marginTop: "50px" }}
-              >
-                <div className={`${showSidebar ? "w-20%" : "w-0"} bg-green-400`}>
-                  <AppSidebar />
-                </div>
+        <UserProvider>
+          <body
+            className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+          >
+            {!hideLayout && <Navbar />}
+            <SidebarProvider>
+              {!hideLayout ? (
+                <div
+                  className="flex flex-row w-full overflow-hidden"
+                  style={{ height: "calc(100vh - 50px)", marginTop: "50px" }}
+                >
+                  <div className={`${showSidebar ? "w-20%" : "w-0"} bg-green-400`}>
+                    <AppSidebar />
+                  </div>
 
-                <main className="h-full overflow-y-auto transition-all duration-300  w-full">
-                  {/* Nested providers must wrap content correctly */}
-                  <FamiliesProvider>
-                    <AttendanceProvider>
-                      <SidebarTrigger onClick={toggleSidebar} />
-                      {children}
-                    </AttendanceProvider>
-                  </FamiliesProvider>
-                </main>
-              </div>
-            ) : (
-              <main className="w-full h-screen bg-white">{children}</main>
-            )}
-          </SidebarProvider>
-          <Toaster />
-        </body>
+                  <main className="h-full overflow-y-auto transition-all duration-300  w-full">
+                    {/* Nested providers must wrap content correctly */}
+                    <FamiliesProvider>
+                      <AttendanceProvider>
+                        <SidebarTrigger onClick={toggleSidebar} />
+                        {children}
+                      </AttendanceProvider>
+                    </FamiliesProvider>
+                  </main>
+                </div>
+              ) : (
+                <main className="w-full h-screen bg-white">{children}</main>
+              )}
+            </SidebarProvider>
+            <Toaster />
+          </body>
+       </UserProvider>
       </StoreProvider>
     </html>
   );

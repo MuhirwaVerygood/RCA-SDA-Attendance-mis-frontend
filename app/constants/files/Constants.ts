@@ -2,10 +2,12 @@ import { Family, FamilyResponseStructure } from "@/app/components/Families";
 import { User } from "@/app/components/Signup";
 import { AttendanceRecord } from "@/app/contexts/AttendanceContext";
 import axios, { AxiosResponse } from "axios";
+import {  Dispatch, SetStateAction } from "react";
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import toast from "react-hot-toast";
 import { authorizedAPI, unauthorizedAPI } from "./api";
 import { Member } from "@/app/components/AttendanceTable";
+import { UserResponse } from "@/app/contexts/UserContext";
 export async function registerUser(formData: User, router: AppRouterInstance) {
     try {
         const res = await unauthorizedAPI.post("/auth/signup", formData);
@@ -25,10 +27,18 @@ export async function registerUser(formData: User, router: AppRouterInstance) {
 }
 
 
-export async function loginUser(user: User, rememberMe: boolean, router: AppRouterInstance) {
+export async function loginUser(
+    user: User, rememberMe: boolean, router: AppRouterInstance,
+    setUserData: Dispatch<SetStateAction<UserResponse | null>>
+) {
     try {
         const res = await unauthorizedAPI.post("/auth/signin", user);
         if (res.status === 200) {
+            const loggedInUser: UserResponse  = res.data.user;
+            setUserData(loggedInUser)
+            
+    
+
             toast.success("Logged in successfully", { position: "top-center" });
             
             if (rememberMe) {

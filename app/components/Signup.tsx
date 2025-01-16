@@ -4,8 +4,6 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Button } from "@/components/ui/button"
 import { useRouter } from 'next/navigation'
-import axios from 'axios'
-import toast from 'react-hot-toast'
 import { registerUser } from '../constants/files/Constants'
 
 export interface User {
@@ -13,6 +11,7 @@ export interface User {
     email: string,
     password: string
 }
+
 
 const Signup = () => {
 

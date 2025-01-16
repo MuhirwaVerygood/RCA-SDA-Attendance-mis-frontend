@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Notification from "../../app/constants/svgs/Notification.svg";
 import Image from "next/image";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -18,7 +18,6 @@ import Profile from "../constants/svgs/Profile.svg";
 import {
     Dialog,
     DialogContent,
-    DialogDescription,
     DialogHeader,
     DialogTitle,
     DialogTrigger,
@@ -27,10 +26,18 @@ import { authorizedAPI } from "../constants/files/api";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import ProfileInputField from "./ProfileInputField";
+import { useUser } from "../contexts/UserContext";
 
+export interface ProfileProperties{
+    username: string
+    profileName: string
+    post: string, 
+    image: string
+}
 const Navbar = () => {
     const [openEditProfite, setOpenEditProfileDialog] = useState<boolean>(false);
-    const [profileImage, setProfileImage] = useState<string>("")
+    const [profileData, setProfileData] = useState<ProfileProperties>({ username: "", profileName: "", post: "" , image:""})
+    const {userData , setUserData} = useUser()
 
     const handleLogout = async () => {
         try {
@@ -65,7 +72,9 @@ const Navbar = () => {
             })
                 .then((res) => res.json())
                 .then((data) => {
-                    console.log(data.secure_url);
+                    setProfileData((prevData) => ({
+                        ...prevData, image: data.secure_url 
+                    }))
                 })
                 .catch((err) => {
                     console.log(err);
@@ -75,6 +84,28 @@ const Navbar = () => {
         }
     }
 
+
+    useEffect(() => {
+        console.log(profileData);
+        setProfileData((prevData) => ({
+            ...prevData, username: userData?.username || "", profileName: userData?.profileName || "", 
+             image: userData?.image || ""
+        }))
+    }, [])
+    
+    const handleSubmit = async(e: React.ChangeEvent<HTMLFormElement>) => {
+        e.preventDefault()
+        
+        try {
+            const res = await authorizedAPI.put("/users/profile", profileData);
+            if (res.status == 200) {
+                setUserData(res.data);
+            }
+        } catch (error) {
+            console.log(error);           
+        }
+        
+    }
 
 
     return (
@@ -100,7 +131,7 @@ const Navbar = () => {
                     <MenubarMenu>
                         <MenubarTrigger>
                             <Avatar className="flex">
-                                <AvatarImage src={Profile.src} />
+                                <AvatarImage src={userData?.image} />
                                 <AvatarFallback>CN</AvatarFallback>
                             </Avatar>
                         </MenubarTrigger>
@@ -136,43 +167,38 @@ const Navbar = () => {
                                                 Profile Picture
                                             </DialogTitle>     
                                         </DialogHeader>
-                                        <div className="flex flex-row items-center justify-between">
-                                            <Image src={Profile} alt="User profile" />
-                                            <div className="flex gap-5 items-center">
-                                                <div>
-                                                    <label htmlFor="upload-button" className="cursor-pointer bg-black  text-white py-2 px-4 rounded">
-                                                        Change Picture
-                                                    </label>
-                                                    <input
-                                                        id="upload-button"
-                                                        type="file"
-                                                        accept="image/*"
-                                                        className="hidden"
-                                                        onChange={handleFileUpload}
-                                                    />
+                                        
+                                        <form onSubmit={handleSubmit} className="space-y-3">
+                                            <div className="flex flex-row items-center justify-between">
+                                                <Avatar className="flex">
+                                                    <AvatarImage src={userData?.image} />
+                                                    <AvatarFallback>CN</AvatarFallback>
+                                                </Avatar>
+                                                <div className="flex gap-5 items-center">
+                                                    <div>
+                                                        <label htmlFor="upload-button" className="cursor-pointer bg-black  text-white py-2 px-4 rounded">
+                                                            Change Picture
+                                                        </label>
+                                                        <input
+                                                            id="upload-button"
+                                                            type="file"
+                                                            accept="image/*"
+                                                            className="hidden"
+                                                            onChange={handleFileUpload}
+                                                        />
+                                                    </div>
+
+                                                    <Button className=" bg-[#D3DDE7] text-red-600">Delete Picture</Button>
                                                 </div>
-
-                                                <Button className=" bg-[#D3DDE7] text-red-600">Delete Picture</Button>
                                             </div>
-                                        </div>
 
-                                        <ProfileInputField  label="Profile name" value="Verygood Muhirwa"/>
-                                        <ProfileInputField  label="Username" value="Verygood "/>
-                                        <ProfileInputField label="Post in Church" value="Umukuru w'Itorero" />
-                                        <div className="flex justify-end">
-                                            <Button disabled className="w-[30%]" >Save changes</Button>
-                                        </div>
-
-                                        {/* <CldImage
-                                            src="cld-sample-5" // Use this sample image or upload your own via the Media Explorer
-                                            width="500" // Transform the image: auto-crop to square aspect_ratio
-                                            height="500"
-                                            crop={{
-                                                type: 'auto',
-                                                source: true
-                                            }}
-                                            alt="User image"
-                                        /> */}
+                                            <ProfileInputField label="Profile name" value={profileData.profileName} setProfileData={setProfileData} fieldName="profileName" />
+                                            <ProfileInputField label="Username" value={profileData.username } setProfileData={setProfileData} fieldName="username" />
+                                            <ProfileInputField label="Post in Church" value={profileData.post} setProfileData={setProfileData} fieldName="post" />
+                                            <div className="flex justify-end">
+                                                <Button className="w-[30%]" type="submit" >Save changes</Button>
+                                            </div>
+                                        </form>
                                     </DialogContent>
                                 </Dialog>
                             </div>
