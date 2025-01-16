@@ -40,7 +40,7 @@ const Signin = () => {
     }
 
     const handleRememberMeChange = () => {
-        setRememberMe(!rememberMe);  
+        setRememberMe(!rememberMe);
     }
 
     return (
@@ -53,9 +53,9 @@ const Signin = () => {
                     <Label htmlFor="password">Password</Label>
                     <Input className='border-[1px] outline-none mb-[6%] h-[30px] focus:ring-1 focus:ring-gray-100' value={user.password} onChange={handlePasswordChange} type='password' name='password' />
 
-                    <div> 
+                    <div>
                         <div className="flex items-center space-x-2">
-                            <Checkbox id="terms" checked={rememberMe} onChange={ handleRememberMeChange} />
+                            <Checkbox id="terms" checked={rememberMe} onChange={handleRememberMeChange} />
                             <Label htmlFor="terms" onClick={handleRememberMeChange}>Remember Me</Label>
                         </div>
                     </div>

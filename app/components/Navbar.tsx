@@ -14,7 +14,6 @@ import {
 import SignOut from "../constants/svgs/SignOut.svg";
 import UserLogo from "../constants/svgs/User.svg";
 import About from "../constants/svgs/About.svg";
-import Profile from "../constants/svgs/Profile.svg";
 import {
     Dialog,
     DialogContent,
@@ -26,6 +25,7 @@ import { authorizedAPI } from "../constants/files/api";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import ProfileInputField from "./ProfileInputField";
+import AboutPage from "./AboutPage";
 
 export interface UserResponse {
     id: number;
@@ -40,18 +40,27 @@ export interface UserResponse {
     family: string | null;
 }
 
-export interface ProfileProperties{
+export interface ProfileProperties {
     username: string
     profileName: string
-    post: string, 
+    post: string,
     image: string
 }
+
+export interface Message{
+    email: string;
+    content: string;
+}
+
 
 
 const Navbar = () => {
     const [openEditProfite, setOpenEditProfileDialog] = useState<boolean>(false);
-    const [profileData, setProfileData] = useState<ProfileProperties>({ username: "", profileName: "", post: "" , image:""})
+    const [openAboutDialog, setOpenAboutDialog] = useState<boolean>(false);
+    const [profileData, setProfileData] = useState<ProfileProperties>({ username: "", profileName: "", post: "", image: "" })
+    const [message, setMessage] = useState<Message>({ email: "", content: "" });
     const [userData, setUserData] = useState<UserResponse | null>(null);
+
 
 
     useEffect(() => {
@@ -101,7 +110,7 @@ const Navbar = () => {
                 .then((res) => res.json())
                 .then((data) => {
                     setProfileData((prevData) => ({
-                        ...prevData, image: data.secure_url 
+                        ...prevData, image: data.secure_url
                     }))
                 })
                 .catch((err) => {
@@ -113,11 +122,11 @@ const Navbar = () => {
     }
 
 
-   
-    
-    const handleSubmit = async(e: React.ChangeEvent<HTMLFormElement>) => {
+
+
+    const handleSubmit = async (e: React.ChangeEvent<HTMLFormElement>) => {
         e.preventDefault()
-                
+
         try {
             const res = await authorizedAPI.put("/users/profile", profileData);
             if (res.status == 200) {
@@ -127,15 +136,14 @@ const Navbar = () => {
             setOpenEditProfileDialog(false)
             window.location.reload()
         } catch (error) {
-            console.log(error);           
+            console.log(error);
         }
-        
+
     }
 
 
     return (
         <header className="fixed top-0 left-0 z-50 w-full h-[50px] bg-soft-white shadow-custom flex justify-between items-center px-[2%]">
-            {/* Left Section: App Title */}
             <div className="flex items-center">
                 <span className="text-black font-semibold">
                     RCA SDA ATTENDANCE MIS
@@ -143,7 +151,7 @@ const Navbar = () => {
             </div>
 
             {/* Right Section: Notification and User Menu */}
-            <div className="flex items-center space-x-4 mr-5">
+            <div className="flex items-center  space-x-4 mr-5">
                 {/* Notification Icon */}
                 <Image
                     src={Notification}
@@ -155,9 +163,8 @@ const Navbar = () => {
                 <Menubar className="hover:outline-none active:outline-none focus:outline-none">
                     <MenubarMenu>
                         <MenubarTrigger>
-                            <Avatar className="flex">
+                            <Avatar className="flex mt-2">
                                 <AvatarImage src={userData?.image} />
-                                <AvatarFallback>CN</AvatarFallback>
                             </Avatar>
                         </MenubarTrigger>
                         <MenubarContent className="bg-soft-white px-8 space-y-3 py-2 mr-10 mt-5 border-[0.5px] border-[#CED4DA] rounded-md shadow-sm">
@@ -168,7 +175,7 @@ const Navbar = () => {
                                     alt="Profile Icon"
                                     className="h-4 w-4"
                                 />
-                              
+
                                 <Dialog
                                     open={openEditProfite}
                                     onOpenChange={(open) => setOpenEditProfileDialog(open)}
@@ -177,8 +184,8 @@ const Navbar = () => {
                                         <MenubarItem
                                             className="cursor-pointer hover:outline-none"
                                             onClick={(event) => {
-                                                event.preventDefault(); 
-                                                setOpenEditProfileDialog(true); 
+                                                event.preventDefault();
+                                                setOpenEditProfileDialog(true);
                                             }}
                                         >
                                             Profile
@@ -190,14 +197,13 @@ const Navbar = () => {
                                         <DialogHeader>
                                             <DialogTitle>
                                                 Profile Picture
-                                            </DialogTitle>     
+                                            </DialogTitle>
                                         </DialogHeader>
-                                        
+
                                         <form onSubmit={handleSubmit} className="space-y-3">
                                             <div className="flex flex-row items-center justify-between">
-                                                <Avatar className="flex">
+                                                <Avatar >
                                                     <AvatarImage src={profileData.image} />
-                                                    <AvatarFallback>CN</AvatarFallback>
                                                 </Avatar>
                                                 <div className="flex gap-5 items-center">
                                                     <div>
@@ -213,12 +219,12 @@ const Navbar = () => {
                                                         />
                                                     </div>
 
-                                                    <Button className=" bg-[#D3DDE7] text-red-600">Delete Picture</Button>
+                                                    <Button className=" bg-[#D3DDE7] text-red-600 outline-none">Delete Picture</Button>
                                                 </div>
                                             </div>
 
                                             <ProfileInputField label="Profile name" value={profileData.profileName} setProfileData={setProfileData} fieldName="profileName" />
-                                            <ProfileInputField label="Username" value={profileData.username } setProfileData={setProfileData} fieldName="username" />
+                                            <ProfileInputField label="Username" value={profileData.username} setProfileData={setProfileData} fieldName="username" />
                                             <ProfileInputField label="Post in Church" value={profileData.post} setProfileData={setProfileData} fieldName="post" />
                                             <div className="flex justify-end">
                                                 <Button className="w-[30%]" type="submit" >Save changes</Button>
@@ -236,9 +242,26 @@ const Navbar = () => {
                                     alt="About Icon"
                                     className="h-4 w-4"
                                 />
-                                <MenubarItem className="cursor-pointer hover:outline-none">
-                                    About
-                                </MenubarItem>
+
+                                <Dialog open={openAboutDialog} onOpenChange={(open) => setOpenAboutDialog(open)}
+>
+                                    <DialogTrigger asChild>
+                                        <MenubarItem className="cursor-pointer hover:outline-none" onClick={(event) => {
+                                            event.preventDefault()
+                                            setOpenAboutDialog(true)
+                                        }}>
+                                            About
+                                        </MenubarItem>
+                                    </DialogTrigger>
+                                    <DialogContent>
+                                        <DialogHeader>
+                                            <DialogTitle>Contact us for your concerns</DialogTitle>
+                                        </DialogHeader>
+                                        <AboutPage message={message} setMessage={setMessage}  />
+                                    </DialogContent>
+                                </Dialog>
+
+                                
                             </div>
                             <hr />
 
@@ -262,7 +285,7 @@ const Navbar = () => {
                     </MenubarMenu>
                 </Menubar>
             </div>
-        </header>   
+        </header>
     );
 };
 
