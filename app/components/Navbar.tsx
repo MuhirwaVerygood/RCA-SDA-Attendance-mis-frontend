@@ -26,7 +26,19 @@ import { authorizedAPI } from "../constants/files/api";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import ProfileInputField from "./ProfileInputField";
-import { useUser } from "../contexts/UserContext";
+
+export interface UserResponse {
+    id: number;
+    username: string;
+    email: string;
+    isAdmin: boolean;
+    isFather: boolean;
+    isMother: boolean;
+    post: string;
+    profileName: string;
+    image: string;
+    family: string | null;
+}
 
 export interface ProfileProperties{
     username: string
@@ -34,10 +46,26 @@ export interface ProfileProperties{
     post: string, 
     image: string
 }
+
+
 const Navbar = () => {
     const [openEditProfite, setOpenEditProfileDialog] = useState<boolean>(false);
     const [profileData, setProfileData] = useState<ProfileProperties>({ username: "", profileName: "", post: "" , image:""})
-    const {userData , setUserData} = useUser()
+    const [userData, setUserData] = useState<UserResponse | null>(null);
+
+
+    useEffect(() => {
+
+        const savedUserString = localStorage.getItem("loggedInUser");
+        const savedUser = savedUserString ? JSON.parse(savedUserString) : null;
+        setUserData(savedUser);
+
+        setProfileData((prevData) => ({
+            ...prevData, username: savedUser.username || "", profileName: savedUser.profileName || "",
+            post: savedUser.post,
+            image: savedUser.image || ""
+        }))
+    }, [])
 
     const handleLogout = async () => {
         try {
@@ -85,22 +113,19 @@ const Navbar = () => {
     }
 
 
-    useEffect(() => {
-        console.log(profileData);
-        setProfileData((prevData) => ({
-            ...prevData, username: userData?.username || "", profileName: userData?.profileName || "", 
-             image: userData?.image || ""
-        }))
-    }, [])
+   
     
     const handleSubmit = async(e: React.ChangeEvent<HTMLFormElement>) => {
         e.preventDefault()
-        
+                
         try {
             const res = await authorizedAPI.put("/users/profile", profileData);
             if (res.status == 200) {
-                setUserData(res.data);
+                localStorage.setItem("loggedInUser", JSON.stringify(res.data))
             }
+
+            setOpenEditProfileDialog(false)
+            window.location.reload()
         } catch (error) {
             console.log(error);           
         }
@@ -171,7 +196,7 @@ const Navbar = () => {
                                         <form onSubmit={handleSubmit} className="space-y-3">
                                             <div className="flex flex-row items-center justify-between">
                                                 <Avatar className="flex">
-                                                    <AvatarImage src={userData?.image} />
+                                                    <AvatarImage src={profileData.image} />
                                                     <AvatarFallback>CN</AvatarFallback>
                                                 </Avatar>
                                                 <div className="flex gap-5 items-center">

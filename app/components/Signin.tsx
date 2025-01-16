@@ -7,13 +7,11 @@ import { Button } from "@/components/ui/button"
 import { User } from './Signup'
 import { useRouter } from 'next/navigation'
 import { loginUser } from '../constants/files/Constants'
-import { useUser } from '../contexts/UserContext'
 
 
 const Signin = () => {
     const [user, setUser] = useState<User>({ email: "", password: "" })
     const [rememberMe, setRememberMe] = useState(false);
-    const { setUserData } =  useUser()
     const router = useRouter()
 
     useEffect(() => {
@@ -26,7 +24,7 @@ const Signin = () => {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
-        loginUser(user, rememberMe, router , setUserData)
+        loginUser(user, rememberMe, router)
     }
 
     const handleNavigate = () => {

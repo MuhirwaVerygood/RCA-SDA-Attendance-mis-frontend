@@ -7,7 +7,6 @@ import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.share
 import toast from "react-hot-toast";
 import { authorizedAPI, unauthorizedAPI } from "./api";
 import { Member } from "@/app/components/AttendanceTable";
-import { UserResponse } from "@/app/contexts/UserContext";
 export async function registerUser(formData: User, router: AppRouterInstance) {
     try {
         const res = await unauthorizedAPI.post("/auth/signup", formData);
@@ -29,16 +28,12 @@ export async function registerUser(formData: User, router: AppRouterInstance) {
 
 export async function loginUser(
     user: User, rememberMe: boolean, router: AppRouterInstance,
-    setUserData: Dispatch<SetStateAction<UserResponse | null>>
 ) {
     try {
         const res = await unauthorizedAPI.post("/auth/signin", user);
         if (res.status === 200) {
-            const loggedInUser: UserResponse  = res.data.user;
-            setUserData(loggedInUser)
-            
-    
-
+            const loggedInUser= res.data.user;
+            localStorage.setItem("loggedInUser", JSON.stringify(loggedInUser))
             toast.success("Logged in successfully", { position: "top-center" });
             
             if (rememberMe) {
@@ -53,9 +48,6 @@ export async function loginUser(
                 res.data.user.isAdmin ? router.replace("/admin-landing") : "";
     } catch (error: any) {
         console.log(error);
-
-        // console.log(error.response.data.statusCode);
-
 
         if (error.response.data.statusCode === 401) {
             toast.error(error.response.data.message, { position: "top-center" })

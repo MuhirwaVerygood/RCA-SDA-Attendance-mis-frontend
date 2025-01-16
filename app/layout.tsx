@@ -11,7 +11,6 @@ import { FamiliesProvider } from "./contexts/FamiliesContext";
 import StoreProvider from "./StoreProvider";
 import { useState } from "react";
 import { AttendanceProvider } from "./contexts/AttendanceContext";
-import { UserProvider } from "./contexts/UserContext";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -41,7 +40,6 @@ export default function RootLayout({
   return (
     <html lang="en">
       <StoreProvider>
-        <UserProvider>
           <body
             className={`${geistSans.variable} ${geistMono.variable} antialiased`}
           >
@@ -72,7 +70,6 @@ export default function RootLayout({
             </SidebarProvider>
             <Toaster />
           </body>
-       </UserProvider>
       </StoreProvider>
     </html>
   );
