@@ -154,7 +154,7 @@ const Navbar = () => {
 
 
     const handleSubmit = async (e: React.ChangeEvent<HTMLFormElement>) => {
-        e.preventDefault()
+            e.preventDefault()
 
         try {
             const res = await authorizedAPI.put("/users/profile", profileData);

@@ -9,7 +9,7 @@ import Image from "next/image";
 import { authorizedAPI } from "../constants/files/api";
 
 // Define types for the structure of each row in the attendance data
-interface AttendanceRow {
+export interface AttendanceRow {
   feature: string;
   ebenezer: string;
   salvSibs: string;
@@ -240,10 +240,10 @@ const AttendanceReport = ({ date, setIsDialogOpen }: { date: string | null, setI
     <div>
       <PDFDownloadLink
         document={<AttendancePDF attendanceData={attendanceData} date={date} />}
-        fileName={`attendance-report-for-${date}.pdf`}
-        className="flex justify-end mb-3"
+        fileName={`Attendance_Report_${date || "NoDate"}.pdf`}
+        className="flex justify-end pb-3"
       >
-        <Button >Download</Button>
+        <Button>Download</Button>
       </PDFDownloadLink>
 
 

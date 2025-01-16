@@ -49,15 +49,10 @@ const items = [
         title: "SETTINGS",
         subItems: [
             {
-                title: "Add Admin/Father",
-                url: "/settings",
+                title: "Add Admin",
+                url: "/admin",
                 image: UserPlus
-            },
-            {
-                title: "Settings",
-                url: "/settings",
-                image: Gear
-            },
+            }      
 
         ],
     },
