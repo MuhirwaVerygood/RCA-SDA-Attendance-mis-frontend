@@ -3,13 +3,16 @@ import { Label } from '@/components/ui/label'
 import { Message } from './Navbar';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
+import React from 'react';
 
 type AboutPageProps = {
     setMessage: React.Dispatch<React.SetStateAction<Message>>;
     message: Message;
 };
-    
+
 const AboutPage: React.FC<AboutPageProps> = ({ setMessage, message }) => {
+
+   
 
     const handleChange = (
         e: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>
@@ -29,8 +32,9 @@ const AboutPage: React.FC<AboutPageProps> = ({ setMessage, message }) => {
             <Label htmlFor="email">Email</Label>
             <Input
                 name="email"
-                value={message.email}
+                // value={message.email}
                 onChange={handleChange}
+                placeholder='Enter your email'
                 className='focus:ring-2 focus:ring-blue-300'
             />
             <div className="flex flex-col space-y-3">
@@ -43,9 +47,7 @@ const AboutPage: React.FC<AboutPageProps> = ({ setMessage, message }) => {
                     placeholder='Type your message here'
                 />
             </div>
-            <div className="flex justify-end">
-                <Button className="w-[40%]">Send</Button>
-            </div>
+           
         </div>
     );
 };

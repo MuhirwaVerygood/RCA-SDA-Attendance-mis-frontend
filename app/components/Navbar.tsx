@@ -26,7 +26,8 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import ProfileInputField from "./ProfileInputField";
 import AboutPage from "./AboutPage";
-
+import emailjs from "@emailjs/browser"
+import toast from "react-hot-toast";
 export interface UserResponse {
     id: number;
     username: string;
@@ -75,6 +76,34 @@ const Navbar = () => {
             image: savedUser.image || ""
         }))
     }, [])
+
+    const sendEmail = async (e: React.ChangeEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        console.log("Sending email with data:", message);
+
+        const formData = {
+            from_email: message.email,
+            to_email: "verygoodmuhirwa2@gmail.com",
+            message: message.content,
+            from_name: userData?.username
+        };
+
+        try {
+            const response = await emailjs.send(
+                "service_ay6fi65",
+                "template_7j3zjir",
+                formData,
+                "Ne8MFb415mmePvu0B"
+            );
+            if (response.status == 200) {
+                toast.success("Problem sent successfully", { position: "top-center", duration: 3000 }) 
+                setOpenAboutDialog(false)
+            }
+            console.log("Email sent successfully:", response);
+        } catch (error) {
+            console.error("Email sending failed:", error);
+        }
+    };
 
     const handleLogout = async () => {
         try {
@@ -257,7 +286,12 @@ const Navbar = () => {
                                         <DialogHeader>
                                             <DialogTitle>Contact us for your concerns</DialogTitle>
                                         </DialogHeader>
-                                        <AboutPage message={message} setMessage={setMessage}  />
+                                        <form onSubmit={sendEmail}>
+                                            <AboutPage message={message} setMessage={setMessage} />
+                                            <div className="flex justify-end pt-4">
+                                                <Button  className="w-[40%]" type="submit">Send</Button>
+                                            </div>
+                                        </form>
                                     </DialogContent>
                                 </Dialog>
 

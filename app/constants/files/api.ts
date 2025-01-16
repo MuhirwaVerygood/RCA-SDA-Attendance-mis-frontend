@@ -40,7 +40,7 @@ authorizedAxiosInstance.interceptors.response.use(
             try {
                 const response = await generateAccessToken();
                 console.log("Reached here");
-                if (response?.data.success) {
+                if (response?.status == 200) {
                     error.config.headers.authorization = `Bearer ${response.data.accessToken}`
                     return authorizedAPI.request(error.config);
                 }
