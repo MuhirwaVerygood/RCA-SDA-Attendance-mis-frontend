@@ -31,7 +31,11 @@
     "jspdf": "^2.5.2",
     "jspdf-autotable": "^3.8.4",
     "lucide-react": "^0.469.0",
+<<<<<<< HEAD
     "next": "^14.2.16",
+=======
+    "next": "14.2.16",
+>>>>>>> 761adc0a4bceb439d5cfb2d8d1abdff81ecaa364
     "next-cloudinary": "^6.16.0",
     "react": "^18",
     "react-cookie": "^7.2.2",
