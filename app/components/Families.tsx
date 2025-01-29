@@ -24,7 +24,8 @@ import {  handleAddFamily, handleDeleteFamily, handleSaveChanges, resetFamilyFor
 import { useFamilies } from "../contexts/FamiliesContext";
 export interface Family {
     id: number;
-    name: string;
+    familyName?: string;
+    name :string;
     father: string;
     mother: string;
     father_email?: string,
@@ -32,7 +33,6 @@ export interface Family {
     mother_class?: string,
     father_class?: string,
     members?: Kid[];
-    kids: number;
 }
 
 
@@ -41,6 +41,7 @@ export interface FamilyResponseStructure {
     familyName: string,
     father: string,
     mother: string,
+    activeMembers?: number, 
     members: []
 }
 
@@ -57,8 +58,7 @@ const Families = () => {
         father_email: "",
         mother_email: "",
         father_class: "",
-        mother_class:"",
-        kids: 0,
+        mother_class:""
     });
     const { families, setTotalMembers, setFamilies } = useFamilies();
     
@@ -103,10 +103,10 @@ const Families = () => {
                     {families.map((family: Family) => (
                         <TableRow key={family.id}>
                             <TableCell>{family.id}</TableCell>
-                            <TableCell>{family.name}</TableCell>
+                            <TableCell>{family?.familyName || family.name}</TableCell>
                             <TableCell>{family.father}</TableCell>
                             <TableCell>{family.mother}</TableCell>
-                            <TableCell className="text-center">{family.kids}</TableCell>
+                            <TableCell className="text-center">{family.members?.length}</TableCell>
                             <TableCell className="flex gap-4">
                                 <Image
                                     className="h-6 w-6 cursor-pointer"
@@ -215,13 +215,6 @@ const Families = () => {
                             value={familyForm.mother}
                             onChange={handleFormChange}
                             placeholder="Mother's Name"
-                        />
-                        <Input
-                            type="number"
-                            name="kids"
-                            value={familyForm.kids}
-                            onChange={handleFormChange}
-                            placeholder="Number of Children"
                         />
                         <Button onClick={() => setOpenEditDialog(false)}>Cancel</Button>
                         <Button onClick={() => handleSaveChanges(familyForm, selectedFamily, families, setFamilies, setFamilyForm, setOpenEditDialog)}>Save Changes</Button>

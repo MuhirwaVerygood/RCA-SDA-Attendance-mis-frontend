@@ -7,8 +7,5 @@ export default function Home() {
     </div>
       );
 }
-<<<<<<< HEAD
 
 
-=======
->>>>>>> 761adc0a4bceb439d5cfb2d8d1abdff81ecaa364

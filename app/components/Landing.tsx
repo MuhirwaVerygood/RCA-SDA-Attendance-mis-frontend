@@ -5,7 +5,7 @@ import Image from "next/image";
 import { useFamilies } from "../contexts/FamiliesContext";
 
 const Landing = () => {
-    const { families, totalMembers} = useFamilies();
+    const { families, totalMembers , totalActiveMembers} = useFamilies();
     return (
         <div className="flex flex-row w-[70%]  mx-auto space-x-6">
             <div className="flex flex-col w-[25%] bg-soft-white py-4 shadow-second">
@@ -18,7 +18,7 @@ const Landing = () => {
             </div>
             <div className="flex flex-col w-[25%] bg-soft-white py-4 shadow-second">
                 <div className="flex flex-row self-center">
-                    <span className="self-center text-[30px] font-bold">35</span>
+                    <span className="self-center text-[30px] font-bold">{totalActiveMembers}</span>
                     <Image src={ChartArrowRise} alt="Chart Arrow Rise" className="h-6 w-6 mt-[4px] " />
                 </div>
                 <p className="self-center font-semibold">Active Members</p>

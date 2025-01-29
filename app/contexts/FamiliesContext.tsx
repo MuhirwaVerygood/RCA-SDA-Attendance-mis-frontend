@@ -8,6 +8,7 @@ import { getFamilies } from "../constants/files/Constants";
 interface FamiliesContextProps {
     families: Family[];
     totalMembers: number;
+    totalActiveMembers: number;
     setFamilies: React.Dispatch<React.SetStateAction<Family[]>>,
     setTotalMembers: React.Dispatch<React.SetStateAction<number>>
 }
@@ -17,9 +18,10 @@ const FamiliesContext = createContext<FamiliesContextProps | undefined>(undefine
 export const FamiliesProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [families, setFamilies] = useState<Family[]>([]);
     const [totalMembers, setTotalMembers] = useState<number>(0);
+    const [totalActiveMembers , setTotalActiveMembers] = useState<number>(0)
 
     const refreshFamilies = () => {
-        getFamilies(setFamilies, setTotalMembers);
+        getFamilies(setFamilies, setTotalMembers, setTotalActiveMembers);
     };
 
     useEffect(() => {
@@ -27,7 +29,7 @@ export const FamiliesProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }, []);
 
     return (
-        <FamiliesContext.Provider value={{ families, totalMembers, setFamilies, setTotalMembers }}>
+        <FamiliesContext.Provider value={{ families, totalMembers, setFamilies, setTotalMembers , totalActiveMembers }}>
             {children}
         </FamiliesContext.Provider>
     );

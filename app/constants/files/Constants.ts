@@ -2,11 +2,18 @@ import { Family, FamilyResponseStructure } from "@/app/components/Families";
 import { User } from "@/app/components/Signup";
 import { AttendanceRecord } from "@/app/contexts/AttendanceContext";
 import axios, { AxiosResponse } from "axios";
-import {  Dispatch, SetStateAction } from "react";
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 import toast from "react-hot-toast";
 import { authorizedAPI, unauthorizedAPI } from "./api";
-import { Member } from "@/app/components/AttendanceTable";
+import { IndividualAttendance, Member } from "@/app/components/AttendanceTable";
+import { GeneralFormAttendance } from "@/app/components/AttendanceContainer";
+
+
+export interface AttendanceByTable{
+    attendances: IndividualAttendance[],
+    abashyitsi: number 
+}
+
 export async function registerUser(formData: User, router: AppRouterInstance) {
     try {
         const res = await unauthorizedAPI.post("/auth/signup", formData);
@@ -74,9 +81,18 @@ export function getTotalMemberCount(familyData: any) {
     }, 0);
 }
 
+
+export function getTotalActiveMembers( familyData: any){
+    return familyData.reduce((acc: number,  family: FamilyResponseStructure)=>{
+        return acc + (family.activeMembers ?? 0);
+    }, 0)
+}
+
 export async function getFamilies(
     setFamilies: (value: React.SetStateAction<Family[]>) => void,
-    setTotalMembers: (value: React.SetStateAction<number>) => void) {
+    setTotalMembers: (value: React.SetStateAction<number>) => void,
+    setTotalActiveMembers?: React.Dispatch<React.SetStateAction<number>>
+) {
     try {
         const res = await authorizedAPI.get("/families");
 
@@ -84,8 +100,12 @@ export async function getFamilies(
         const familyData = convertFamilyToFamilyData(res)
 
         const totalMembersCount = getTotalMemberCount(familyData)
+        const totalActiveMembers = getTotalActiveMembers(familyData)
 
         setTotalMembers(totalMembersCount);
+        if (setTotalActiveMembers) {
+            setTotalActiveMembers(totalActiveMembers);
+        }
 
         const sortedFamilies: Family[] = familyData.sort(
             (a: Family, b: Family) => a.id - b.id
@@ -116,6 +136,7 @@ export async function handleAddFamily(
                     password: "securePassword123"
                 }
             );
+        
             if (res.status === 201) {
                 toast.success("Family added successfully", { position: "top-center" });
                 setOpenAddDialog(false);
@@ -145,7 +166,6 @@ export function resetFamilyForm(
         name: "",
         father: "",
         mother: "",
-        kids: 0,
     });
 };
 
@@ -387,5 +407,36 @@ export async function getAllMembers(): Promise<Member[]> {
     } catch (error) {
         console.error("Error fetching members:", error);
         return []; // Return an empty array in case of an error
-    }
+    } 
 }
+
+
+export async function handleAddAttendance( 
+    attendance: AttendanceByTable | GeneralFormAttendance 
+ ){
+    let formData;
+    try {
+        
+        if("attendances" in attendance && "abashyitsi" in attendance){
+            formData={
+                attendances: attendance.attendances,
+                abashyitsi: attendance.abashyitsi
+            }
+
+            
+            const res = await authorizedAPI.post("/attendances/general/table" , formData);
+            if (res.status === 200 || res.status === 201) {
+                console.log("Attendance successfully added:", res.data);
+        
+              } else {
+                console.error("Failed to add attendance:", res.statusText);
+                throw new Error("Failed to add attendance");
+              }
+        }
+
+    } catch (error : any) {
+        console.error("An error occurred while adding attendance:", error.message);
+        throw new Error(error.message); 
+    }
+ }
+   

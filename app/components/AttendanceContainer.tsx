@@ -4,12 +4,11 @@ import {
     AlertDialog,
     AlertDialogTrigger,
     AlertDialogContent,
-    AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import AttendanceTable from "../components/AttendanceTable";
 
-interface GeneralFormAttendance {
+export interface GeneralFormAttendance {
     abaje: number;
     abasuye: number;
     abasuwe: number;

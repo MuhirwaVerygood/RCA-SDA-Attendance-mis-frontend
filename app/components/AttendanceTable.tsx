@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { getAllMembers } from "../constants/files/Constants";
+import { getAllMembers, handleAddAttendance } from "../constants/files/Constants";
 import { Button } from "@/components/ui/button";
 interface Family {
   id: number;
@@ -74,12 +74,11 @@ const AttendanceTable = ({ setDialogType }: { setDialogType: React.Dispatch<Reac
     e.preventDefault()
 
     const formData = {
-      attendance,
+      attendances: attendance,
       abashyitsi: abashyitsiCount
     }
     
-    console.log(formData);
-    
+    handleAddAttendance(formData)    
   }
 
 
