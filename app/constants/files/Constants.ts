@@ -71,6 +71,7 @@ export function convertFamilyToFamilyData(res: AxiosResponse<any, any>) {
         mother: family.mother,
         members: family.members,
         kids: family.members.length,
+        activeMembers: family.activeMembers
     }));
     return familyData
 }
@@ -83,7 +84,9 @@ export function getTotalMemberCount(familyData: any) {
 
 
 export function getTotalActiveMembers( familyData: any){
-    return familyData.reduce((acc: number,  family: FamilyResponseStructure)=>{
+console.log(familyData);
+
+    return familyData.reduce((acc: number,  family: FamilyResponseStructure)=>{        
         return acc + (family.activeMembers ?? 0);
     }, 0)
 }
@@ -95,7 +98,6 @@ export async function getFamilies(
 ) {
     try {
         const res = await authorizedAPI.get("/families");
-
 
         const familyData = convertFamilyToFamilyData(res)
 

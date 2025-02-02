@@ -41,7 +41,7 @@ export interface FamilyResponseStructure {
     familyName: string,
     father: string,
     mother: string,
-    activeMembers?: number, 
+    activeMembers: number, 
     members: []
 }
 

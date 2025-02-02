@@ -30,6 +30,9 @@ const Records = () => {
     const handleViewClick = (date: string) => {
         const formattedDate = formatDateForRequest(date);
         setSelectedDate(formattedDate);
+
+        console.log(formattedDate);
+
         setIsDialogOpen(true)
     }
 
@@ -68,9 +71,8 @@ const Records = () => {
                                                     onClick={() => handleViewClick(record.sabbathDate)}
                                                 />
                                             </AlertDialogTrigger>
-                                            <AlertDialogContent className="w-[95%] max-w-4xl h-full overflow-auto bg-white p-6 rounded-lg shadow-lg">
+                                            <AlertDialogContent className="w-[95%] max-w-[90%] h-full overflow-auto bg-white p-6 rounded-lg shadow-lg">
                                                 <div className="relative">
-
                                                     {isDialogOpen && <AttendanceReport date={selectedDate} setIsDialogOpen={ setIsDialogOpen} />}
                                                 </div>
                                             </AlertDialogContent>

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { getAllMembers, handleAddAttendance } from "../constants/files/Constants";
 import { Button } from "@/components/ui/button";
+
 interface Family {
   id: number;
   familyName: string;
@@ -32,6 +33,7 @@ const AttendanceTable = ({ setDialogType }: { setDialogType: React.Dispatch<Reac
   const [members, setMembers] = useState<Member[]>([]);
   const [attendance, setAttendance] = useState<IndividualAttendance[]>([]);
   const [abashyitsiCount, setAbashyitsiCount] = useState<number>(0);
+
   useEffect(() => {
     getAllMembers().then((fetchedMembers: Member[]) => {
       setMembers(fetchedMembers);
@@ -66,21 +68,20 @@ const AttendanceTable = ({ setDialogType }: { setDialogType: React.Dispatch<Reac
     );
   };
 
-  const handleAbashyitsiChange = (e: React.ChangeEvent<HTMLInputElement>) => { 
+  const handleAbashyitsiChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setAbashyitsiCount(Number(e.target.value));
-  }
+  };
 
   const handleSubmission = (e: React.ChangeEvent<HTMLFormElement>) => {
-    e.preventDefault()
+    e.preventDefault();
 
     const formData = {
       attendances: attendance,
-      abashyitsi: abashyitsiCount
-    }
-    
-    handleAddAttendance(formData)    
-  }
+      abashyitsi: abashyitsiCount,
+    };
 
+    handleAddAttendance(formData);
+  };
 
   return (
     <div className="overflow-x-auto">
@@ -102,22 +103,46 @@ const AttendanceTable = ({ setDialogType }: { setDialogType: React.Dispatch<Reac
             </tr>
           </thead>
           <tbody>
-            {
-              members
-                .slice()
-                .sort((a, b) => a.name.localeCompare(b.name))
-                .map((member, index) => (
-                  <tr key={member.id} className="hover:bg-gray-100">
-                    <td className="border border-gray-300 px-4 py-2 text-center">{index + 1}</td>
-                    <td className="border border-gray-300 px-4 py-2">{member.name}</td>
-                    {Object.keys(attendance[0] || {})
-                      .filter((key) => key !== "memberId")
-                      .map((field) => (
+            {members
+              .slice()
+              .sort((a, b) => a.name.localeCompare(b.name))
+              .map((member, index) => (
+                <tr key={member.id} className="hover:bg-gray-100">
+                  <td className="border border-gray-300 px-4 py-2 text-center">
+                    {index + 1}
+                  </td>
+                  <td className="border border-gray-300 px-4 py-2">{member.name}</td>
+
+                  {/* Yaje Checkbox */}
+                  <td
+                    className="border border-gray-300 px-4 py-2 text-center cursor-pointer"
+                    onClick={() => handleCheckboxChange(member.id, "yaje")}
+                  >
+                    <input
+                      type="checkbox"
+                      checked={
+                        attendance.find((entry) => entry.memberId === member.id)
+                          ?.yaje ?? false
+                      }
+                      onChange={() => {}}
+                      className="pointer-events-none w-4 h-4 rounded-sm border-2 border-gray-400 bg-black checked:bg-black checked:border-black checked:accent-black"
+                    />
+                  </td>
+
+                  {/* Other fields */}
+                  {Object.keys(attendance[0] || {})
+                    .filter((key) => key !== "memberId" && key !== "yaje")
+                    .map((field) => {
+                      const isDisabled = field !== "ararwaye" && field !== "afiteIndiMpamvu" && !attendance.find((entry) => entry.memberId === member.id)?.yaje;
+                      return (
                         <td
-                          className="border border-gray-300 px-4 py-2 
-                          text-center cursor-pointer"
                           key={field}
-                          onClick={() => handleCheckboxChange(member.id, field as keyof IndividualAttendance)}
+                          className="border border-gray-300 px-4 py-2 text-center cursor-pointer"
+                          onClick={() => {
+                            if (!isDisabled) {
+                              handleCheckboxChange(member.id, field as keyof IndividualAttendance);
+                            }
+                          }}
                         >
                           <input
                             type="checkbox"
@@ -126,33 +151,39 @@ const AttendanceTable = ({ setDialogType }: { setDialogType: React.Dispatch<Reac
                                 field as keyof IndividualAttendance
                               ] ?? false) as boolean
                             }
-                            onChange={() => { }} // Optional: Prevent default behavior since `onClick` handles it
-                            // Prevent direct interaction with the checkbox
-                            className=" pointer-events-none w-4 h-4 rounded-sm border-2 border-gray-400 bg-black checked:bg-black checked:border-black checked:accent-black"
-
+                            disabled={isDisabled}
+                            onChange={() => {}}
+                            className={`pointer-events-none w-4 h-4 rounded-sm border-2 border-gray-400 ${
+                              isDisabled ? "bg-gray-200" : "bg-black checked:bg-black checked:border-black checked:accent-black"
+                            }`}
                           />
                         </td>
-
-                      ))}
-                  </tr>
-                ))}
+                      );
+                    })}
+                </tr>
+              ))}
           </tbody>
         </table>
-      
-      <div className="flex justify-between pt-4">
-        <div className="space-x-2" >
-          <label>Abashyitsi</label>
-          <input type="number" className="border border-gray-300 rounded  px-2 py-1 focus:outline-none focus:ring focus:ring-indigo-300"  value={abashyitsiCount} onChange={handleAbashyitsiChange}/>
-        </div>
 
-        <div className="col-span-2 flex justify-end space-x-2">
-          <Button variant="outline" onClick={() => setDialogType(null)}>
-            Cancel
-          </Button>
-          <Button type="submit"  >Submit</Button>
+        <div className="flex justify-between pt-4">
+          <div className="space-x-2">
+            <label>Abashyitsi</label>
+            <input
+              type="number"
+              className="border border-gray-300 rounded px-2 py-1 focus:outline-none focus:ring focus:ring-indigo-300"
+              value={abashyitsiCount}
+              onChange={handleAbashyitsiChange}
+            />
+          </div>
+
+          <div className="col-span-2 flex justify-end space-x-2">
+            <Button variant="outline" onClick={() => setDialogType(null)}>
+              Cancel
+            </Button>
+            <Button type="submit">Submit</Button>
+          </div>
         </div>
-      </div>
-      </form>      
+      </form>
     </div>
   );
 };
