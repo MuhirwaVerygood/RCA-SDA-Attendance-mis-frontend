@@ -15,7 +15,7 @@ interface Family {
   mother: string;
 }
 
-interface AttendanceData {
+export interface AttendanceData {
   id: number;
   abanditswe: number;
   abaje: number;

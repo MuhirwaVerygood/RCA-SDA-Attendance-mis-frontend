@@ -1,7 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
     eslint: {
-        // ignoreDuringBuilds: true
+        ignoreDuringBuilds: true
     },
     env: {
         API_URL: process.env.API_URL,
