@@ -29,7 +29,7 @@ export interface AttendanceData {
   abize7: number;
   abashyitsi: number;
   date: string;
-  family: Family;
+  family: Family ;
 }
 
 const AttendanceReport = ({
@@ -50,15 +50,23 @@ const AttendanceReport = ({
         const response = await authorizedAPI.get(
           `http://localhost:3500/attendances/${date}`
         );
+
+        
         const data: AttendanceData[] = await response.data;
 
-        // Extract unique family names dynamically
-        const uniqueFamilies = Array.from(
-          new Set(data.map((item) => item.family.familyName))
-        );
-        setFamilies(uniqueFamilies);
-        setAttendanceData(data);
+        if (data.some((item) => item.family == null)) {
+          setAttendanceData(data)
+        } else {
+          // Extract unique family names dynamically
+          const uniqueFamilies = Array.from(
+            new Set(data.map((item) => item.family.familyName)),
+          );
+          setFamilies(uniqueFamilies);
+          setAttendanceData(data);
+        }
       } catch (error) {
+        console.log(error);
+        
         setError("Failed to fetch attendance data.");
       } finally {
         setLoading(false);
@@ -215,7 +223,6 @@ const AttendanceReport = ({
 
   return (
     <div>
-
       <div className="flex flex-row justify-between items-center">
         <div className="flex flex-row gap-2 font-semibold">
           <Image src={Calendar} className="w-6 h-6" alt="calendar" />
@@ -231,12 +238,8 @@ const AttendanceReport = ({
         </div>
       </div>
 
-
       <div className="flex justify-end py-5">
-        <Button
-          onClick={downloadPDF}
-          className="px-4 py-5  text-white rounded"
-        >
+        <Button onClick={downloadPDF} className="px-4 py-5  text-white rounded">
           Download PDF
         </Button>
       </div>
@@ -244,9 +247,13 @@ const AttendanceReport = ({
       <table className="w-full border-collapse border border-gray-300">
         <thead>
           <tr className="bg-gray-200">
-            <th className="border border-gray-300 px-4 py-2 text-left">Feature</th>
+            <th className="border border-gray-300 px-4 py-2 text-left">
+              Feature
+            </th>
             {families.map((family) => (
-              <th key={family} className="border border-gray-300 px-4 py-2">{family}</th>
+              <th key={family} className="border border-gray-300 px-4 py-2">
+                {family}
+              </th>
             ))}
             <th className="border border-gray-300 px-4 py-2">Total</th>
           </tr>
@@ -254,61 +261,71 @@ const AttendanceReport = ({
         <tbody>
           {features.map((feature) => (
             <tr key={feature}>
-              <td className="border border-gray-300 px-4 py-2">{formatFeatureName(feature)}</td>
+              <td className="border border-gray-300 px-4 py-2">
+                {formatFeatureName(feature)}
+              </td>
               {families.map((family) => (
-                <td key={family} className="border border-gray-300 px-4 py-2 text-center">
+                <td
+                  key={family}
+                  className="border border-gray-300 px-4 py-2 text-center"
+                >
                   {getValue(family, feature as keyof AttendanceData)}
                 </td>
               ))}
-              <td className="border border-gray-300 px-4 py-2 text-center">{calculateTotal(feature as keyof AttendanceData)}</td>
+              <td className="border border-gray-300 px-4 py-2 text-center">
+                {calculateTotal(feature as keyof AttendanceData)}
+              </td>
             </tr>
           ))}
 
           {/* Percentage Row */}
-          <tr className="bg-gray-200 font-bold">
-            <td className="border  border-gray-300 px-4 py-2">Percentage</td>
-            {familyPercentages.map((percentage, index) => {
-              const numericPercentage = parseFloat(percentage);
-              return (
-                <td
-                  key={index}
-                  className={`border text-center  border-gray-300 px-4 py-2 ${numericPercentage < 50 ? "text-red-500" : ""
+          {attendanceData.some((item) => item.family !== null) && (
+            <tr className="bg-gray-200 font-bold">
+              <td className="border border-gray-300 px-4 py-2">Percentage</td>
+              {familyPercentages.map((percentage, index) => {
+                const numericPercentage = parseFloat(percentage);
+                return (
+                  <td
+                    key={index}
+                    className={`border text-center border-gray-300 px-4 py-2 ${
+                      numericPercentage < 50 ? 'text-red-500' : ''
                     }`}
-                >
-                  {percentage}
-                </td>
-              );
-            })}
-            <td
-              className={`border border-gray-300 px-4 py-2  ${families.length > 0 &&
-                parseFloat(
-                  (familyPercentages.reduce(
-                    (sum, percentage) => sum + parseFloat(percentage),
-                    0
-                  ) / families.length
-                  ).toFixed(2)
-                ) < 50
-                ? "text-red-500"
-                : ""
+                  >
+                    {percentage}
+                  </td>
+                );
+              })}
+              <td
+                className={`border border-gray-300 px-4 py-2 ${
+                  families.length > 0 &&
+                  parseFloat(
+                    (
+                      familyPercentages.reduce(
+                        (sum, percentage) => sum + parseFloat(percentage),
+                        0,
+                      ) / families.length
+                    ).toFixed(2),
+                  ) < 50
+                    ? 'text-red-500'
+                    : ''
                 }`}
-            >
-              {families.length > 0
-                ? (
-                  familyPercentages.reduce(
-                    (sum, percentage) => sum + parseFloat(percentage),
-                    0
-                  ) / families.length
-                ).toFixed(2) + "%"
-                : "0%"}
-            </td>
-          </tr>
-
-
+              >
+                {families.length > 0
+                  ? (
+                      familyPercentages.reduce(
+                        (sum, percentage) => sum + parseFloat(percentage),
+                        0,
+                      ) / families.length
+                    ).toFixed(2) + '%'
+                  : '0%'}
+              </td>
+            </tr>
+          )}
+          
         </tbody>
       </table>
 
       <div className="mt-4 flex space-x-4 justify-end">
-
         <Button
           onClick={() => setIsDialogOpen(false)}
           className="px-4 py-5  text-white rounded  w-[10%]"

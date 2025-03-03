@@ -7,6 +7,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import AttendanceTable from "../components/AttendanceTable";
+import { addGeneralAttendanceByForm } from "../constants/files/Constants";
 
 export interface GeneralFormAttendance {
     abaje: number;
@@ -42,7 +43,7 @@ const formatLabel = (key: string): string => {
 const AttendanceContainer = () => {
     const [dialogType, setDialogType] = useState<"form" | "table" | null>(null);
 
-    const [formData, setFormData] = useState<GeneralFormAttendance>({
+    const [ formData, setFormData] = useState<GeneralFormAttendance>({
         abaje: 0,
         abasuye: 0,
         abasuwe: 0,
@@ -67,8 +68,7 @@ const AttendanceContainer = () => {
     };
 
     const handleSubmit = () => {
-        console.log("Form Data Submitted: ", formData);
-        setDialogType(null); // Close the dialog
+        addGeneralAttendanceByForm(formData)
     };
 
     return (

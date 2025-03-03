@@ -71,7 +71,8 @@ export function convertFamilyToFamilyData(res: AxiosResponse<any, any>) {
         mother: family.mother,
         members: family.members,
         kids: family.members.length,
-        activeMembers: family.activeMembers
+        activeMembers: family.activeMembers,
+        attendances: family.attendances
     }));
     return familyData
 }
@@ -84,12 +85,12 @@ export function getTotalMemberCount(familyData: any) {
 
 
 export function getTotalActiveMembers( familyData: any){
-console.log(familyData);
-
     return familyData.reduce((acc: number,  family: FamilyResponseStructure)=>{        
         return acc + (family.activeMembers ?? 0);
     }, 0)
 }
+
+
 
 export async function getFamilies(
     setFamilies: (value: React.SetStateAction<Family[]>) => void,
@@ -98,6 +99,7 @@ export async function getFamilies(
 ) {
     try {
         const res = await authorizedAPI.get("/families");
+        
 
         const familyData = convertFamilyToFamilyData(res)
 
@@ -442,3 +444,15 @@ export async function handleAddAttendance(
     }
  }
    
+
+export async function addGeneralAttendanceByForm(formData: GeneralFormAttendance) {
+     try {
+         const res = await authorizedAPI.post("/attendances/general/form", formData);
+         if (res.status === 200 || res.status === 201) { 
+             toast.success("Attendance added successfully", { position: "top-center" });
+         }
+     } catch (error) {
+         console.log(error);
+         return;
+     }
+ }

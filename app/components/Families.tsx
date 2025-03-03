@@ -22,6 +22,7 @@ import Delete from "../constants/svgs/Delete.svg";
 import { Kid, } from "@/lib/features/FamilySlice";
 import {  handleAddFamily, handleDeleteFamily, handleSaveChanges, resetFamilyForm } from "../constants/files/Constants";
 import { useFamilies } from "../contexts/FamiliesContext";
+import { AttendanceData } from "./AttendanceReport";
 export interface Family {
     id: number;
     familyName?: string;
@@ -33,6 +34,7 @@ export interface Family {
     mother_class?: string,
     father_class?: string,
     members?: Kid[];
+    attendances?: Partial<AttendanceData[]>
 }
 
 
@@ -42,7 +44,8 @@ export interface FamilyResponseStructure {
     father: string,
     mother: string,
     activeMembers: number, 
-    members: []
+    members: [],
+    attendances : []
 }
 
 const Families = () => {

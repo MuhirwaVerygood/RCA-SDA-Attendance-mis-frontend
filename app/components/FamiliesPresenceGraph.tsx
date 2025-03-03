@@ -1,110 +1,107 @@
-"use client"
-
-import { TrendingUp } from "lucide-react"
-import { CartesianGrid, Line, LineChart, XAxis } from "recharts"
-
 import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardFooter,
-    CardHeader,
-    CardTitle,
-} from "@/components/ui/card"
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+} from 'recharts';
 import {
-    ChartConfig,
-    ChartContainer,
-    ChartTooltip,
-    ChartTooltipContent,
-} from "@/components/ui/chart"
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 
-const chartData = [
-    { month: "January", desktop: 186, mobile: 80, tablet: 50 },
-    { month: "February", desktop: 305, mobile: 200, tablet: 120 },
-    { month: "March", desktop: 237, mobile: 120, tablet: 95 },
-    { month: "April", desktop: 73, mobile: 190, tablet: 70 },
-    { month: "May", desktop: 209, mobile: 130, tablet: 90 },
-    { month: "June", desktop: 214, mobile: 140, tablet: 110 },
-]
-
-const chartConfig = {
-    desktop: {
-        label: "Desktop",
-        color: "hsl(var(--chart-1))",
-    },
-    mobile: {
-        label: "Mobile",
-        color: "hsl(var(--chart-2))",
-    },
-    tablet: {
-        label: "Tablet",
-        color: "hsl(var(--chart-3))",
-    },
-} satisfies ChartConfig
-
-export function FamiliesPresenceGraph() {
-    return (
-        <Card className="w-[70%] mt-[3%]">
-            <CardHeader>
-                <CardTitle>Line Chart - Multiple Devices</CardTitle>
-                <CardDescription>January - June 2024</CardDescription>
-            </CardHeader>
-            <CardContent className="p-4">
-                <ChartContainer config={chartConfig}>
-                    <LineChart
-                        width={400}
-                        height={200} // Increased height for better visualization
-                        data={chartData}
-                        margin={{
-                            left: 12,
-                            right: 12,
-                        }}
-                    >
-                        <CartesianGrid vertical={false} />
-                        <XAxis
-                            dataKey="month"
-                            tickLine={false}
-                            axisLine={false}
-                            tickMargin={8}
-                            tickFormatter={(value) => value.slice(0, 3)}
-                        />
-                        <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
-                        <Line
-                            dataKey="desktop"
-                            type="monotone"
-                            stroke="hsl(var(--chart-1))" // Desktop color
-                            strokeWidth={2}
-                            dot={false}
-                        />
-                        <Line
-                            dataKey="mobile"
-                            type="monotone"
-                            stroke="hsl(var(--chart-2))" // Mobile color
-                            strokeWidth={2}
-                            dot={false}
-                        />
-                        <Line
-                            dataKey="tablet"
-                            type="monotone"
-                            stroke="hsl(var(--chart-3))" // Tablet color
-                            strokeWidth={2}
-                            dot={false}
-                        />
-                    </LineChart>
-                </ChartContainer>
-            </CardContent>
-            <CardFooter>
-                <div className="flex w-full items-start gap-2 text-sm">
-                    <div className="grid gap-2">
-                        <div className="flex items-center gap-2 font-medium leading-none">
-                            Trending up for all devices <TrendingUp className="h-4 w-4" />
-                        </div>
-                        <div className="flex items-center gap-2 leading-none text-muted-foreground">
-                            Showing total members participated for the last 6 months
-                        </div>
-                    </div>
-                </div>
-            </CardFooter>
-        </Card>
-    )
+export interface Attendance {
+  id: number;
+  abanditswe: number;
+  abaje: number;
+  date: string;
 }
+
+interface Family {
+  id: number;
+  familyName: string;
+  attendances: Attendance[];
+}
+
+interface FamilyPresenceProps {
+  families: Family[];
+  totalMembers: number;
+}
+
+// Function to transform the data
+const transformData = (families: Family[]) => {
+  const allDates = new Set<string>();
+
+  families.forEach((family) => {
+    family.attendances.forEach((attendance) => {
+      allDates.add(attendance.date);
+    });
+  });
+
+  // Sort dates
+  const sortedDates = Array.from(allDates).sort();
+
+  // Build dataset with each date as key and family attendance as values
+  const chartData = sortedDates.map((date) => {
+    const entry: any = { date };
+    families.forEach((family) => {
+      const attendance = family.attendances.find((a) => a.date === date);
+      entry[family.familyName] = attendance ? Math.floor(attendance.abaje) : 0; // Ensure integer values
+    });
+    return entry;
+  });
+
+  return chartData;
+};
+
+const FamiliesPresenceGraph: React.FC<FamilyPresenceProps> = ({
+  families,
+  totalMembers,
+}) => {
+  const chartData = transformData(families);
+
+  // Find the maximum attendance value to set the upper limit for Y-axis
+  const maxAttendance = chartData.reduce((max, entry) => {
+    families.forEach((family) => {
+      max = Math.max(max, entry[family.familyName]);
+    });
+    return max;
+  }, 0);
+
+  return (
+    <Card className="h-[calc(100vh-33vh)]">
+      <CardHeader>
+        <CardTitle>{totalMembers} People</CardTitle>
+        <CardDescription>Maximum present</CardDescription>
+      </CardHeader>
+      <CardContent>
+        <LineChart width={800} height={400} data={chartData}>
+          <CartesianGrid strokeDasharray="3 3" />
+          <XAxis dataKey="date" />
+          <YAxis
+            tickFormatter={(tick) => tick.toFixed(0)} // Ensure Y-axis shows whole numbers
+            domain={[0, maxAttendance]} // Ensure the Y-axis domain is from 0 to the maximum attendance
+            interval={Math.max(1, Math.floor(maxAttendance / 10))} // Adjust the interval to be an integer
+          />
+          <Tooltip />
+          <Legend />
+          {families.map((family) => (
+            <Line
+              key={family.id}
+              type="monotone"
+              dataKey={family.familyName}
+              stroke={`#${Math.floor(Math.random() * 16777215).toString(16)}`}
+            />
+          ))}
+        </LineChart>
+      </CardContent>
+    </Card>
+  );
+};
+
+export default FamiliesPresenceGraph;
