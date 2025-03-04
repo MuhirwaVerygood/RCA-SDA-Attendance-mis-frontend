@@ -39,11 +39,11 @@ const transformFamiliesData = (
     familyName: family.familyName || family.name, // Ensure familyName is always present
     attendances:
       family.attendances?.map((attendance) => ({
-        id: attendance?.id || 0, // Ensure ID is always present
-        abanditswe: attendance?.abanditswe || 0, // Default values for missing fields
+        id: attendance?.id || 0, 
+        abanditswe: attendance?.abanditswe || 0, 
         abaje: attendance?.abaje || 0,
-        date: attendance?.date || '', // Ensure date is always a string
-      })) || [], // Default to an empty array if attendances is undefined
+        date: attendance?.date || '', 
+      })) || [], 
   }));
 };
     
@@ -91,7 +91,7 @@ const transformFamiliesData = (
         <div className="w-full pl-[2%] pt-[4%] h-[50vh] flex justify-between">
           {/* Skeleton for FamiliesPresenceGraph */}
           {loading ? (
-            <Skeleton className="w-[70%] mt-[3%] h-[calc(100vh-36vh)]" />
+            <Skeleton className="w-[70%]  h-[calc(100vh-36vh)]" />
           ) : (
             <FamiliesPresenceGraph
               families={transformedFamilies}
@@ -100,9 +100,9 @@ const transformFamiliesData = (
           )}
           {/* Skeleton for FamiliesPieChart */}
           {loading ? (
-            <Skeleton className="w-[25%] mr-[1%] h-full  mt-[3%]" />
+            <Skeleton className="w-[27%]  mr-[1%] h-[calc(100vh-33vh)] " />
           ) : (
-            <FamiliesPieChart />
+            <FamiliesPieChart families={families} totalMembers={totalMembers} />
           )}
         </div>
       </div>

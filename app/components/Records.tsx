@@ -77,11 +77,7 @@ const Records = () => {
                                                 </div>
                                             </AlertDialogContent>
                                         </AlertDialog>
-                                        <Image
-                                            className="h-6 w-6 cursor-pointer"
-                                            src={Download}
-                                            alt="Download Attendance Record"
-                                        />
+                        
                                     </TableCell>
                                 </TableRow>
                             ))

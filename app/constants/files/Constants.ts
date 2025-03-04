@@ -99,8 +99,9 @@ export async function getFamilies(
 ) {
     try {
         const res = await authorizedAPI.get("/families");
+        console.log(res.data);
         
-
+        
         const familyData = convertFamilyToFamilyData(res)
 
         const totalMembersCount = getTotalMemberCount(familyData)
