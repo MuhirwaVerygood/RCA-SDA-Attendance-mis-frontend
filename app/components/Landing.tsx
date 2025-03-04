@@ -18,10 +18,9 @@ const Landing = () => {
 
 
       useEffect(() => {
-        // Simulate a loading delay
         const timer = setTimeout(() => {
           setLoading(false);
-        }, 2000); // Adjust the delay as needed
+        }, 2000); 
         return () => clearTimeout(timer);
       }, []);
     
@@ -36,7 +35,7 @@ const transformFamiliesData = (
 }[] => {
   return families.map((family) => ({
     id: family.id,
-    familyName: family.familyName || family.name, // Ensure familyName is always present
+    familyName: family.familyName || family.name, 
     attendances:
       family.attendances?.map((attendance) => ({
         id: attendance?.id || 0, 
@@ -89,7 +88,6 @@ const transformFamiliesData = (
         )}
 
         <div className="w-full pl-[2%] pt-[4%] h-[50vh] flex justify-between">
-          {/* Skeleton for FamiliesPresenceGraph */}
           {loading ? (
             <Skeleton className="w-[70%]  h-[calc(100vh-36vh)]" />
           ) : (
@@ -98,7 +96,6 @@ const transformFamiliesData = (
               totalMembers={totalMembers}
             />
           )}
-          {/* Skeleton for FamiliesPieChart */}
           {loading ? (
             <Skeleton className="w-[27%]  mr-[1%] h-[calc(100vh-33vh)] " />
           ) : (

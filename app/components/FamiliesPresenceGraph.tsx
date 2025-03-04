@@ -33,7 +33,6 @@ interface FamilyPresenceProps {
   totalMembers: number;
 }
 
-// Function to transform the data
 const transformData = (families: Family[]) => {
   const allDates = new Set<string>();
 
@@ -43,15 +42,13 @@ const transformData = (families: Family[]) => {
     });
   });
 
-  // Sort dates
   const sortedDates = Array.from(allDates).sort();
 
-  // Build dataset with each date as key and family attendance as values
   const chartData = sortedDates.map((date) => {
     const entry: any = { date };
     families.forEach((family) => {
       const attendance = family.attendances.find((a) => a.date === date);
-      entry[family.familyName] = attendance ? Math.floor(attendance.abaje) : 0; // Ensure integer values
+        entry[family.familyName] = attendance ? Math.floor(attendance.abaje) : 0;
     });
     return entry;
   });
@@ -65,7 +62,6 @@ const FamiliesPresenceGraph: React.FC<FamilyPresenceProps> = ({
 }) => {
   const chartData = transformData(families);
 
-  // Find the maximum attendance value to set the upper limit for Y-axis
   const maxAttendance = chartData.reduce((max, entry) => {
     families.forEach((family) => {
       max = Math.max(max, entry[family.familyName]);
@@ -84,9 +80,9 @@ const FamiliesPresenceGraph: React.FC<FamilyPresenceProps> = ({
           <CartesianGrid strokeDasharray="3 3" />
           <XAxis dataKey="date" />
           <YAxis
-            tickFormatter={(tick) => tick.toFixed(0)} // Ensure Y-axis shows whole numbers
-            domain={[0, maxAttendance]} // Ensure the Y-axis domain is from 0 to the maximum attendance
-            interval={Math.max(1, Math.floor(maxAttendance / 10))} // Adjust the interval to be an integer
+                      tickFormatter={(tick) => tick.toFixed(0)}
+                      domain={[0, maxAttendance]}
+                      interval={Math.max(1, Math.floor(maxAttendance / 10))}
           />
           <Tooltip />
           <Legend />

@@ -29,12 +29,10 @@ export function FamiliesPieChart({
     return colors;
   };
 
-  // Generate unique colors for each family
   const uniqueColors = generateUniqueColors(families.length);
 
-  // Generate chart data with dynamic colors
   const chartData = families.map((family, index) => {
-    const lastAttendance = family.attendances?.[0]; // Use the most recent attendance
+      const lastAttendance = family.attendances?.[0];
     const percentage = lastAttendance
       ? (lastAttendance.abaje / totalMembers) * 100
       : 0;
@@ -46,7 +44,6 @@ export function FamiliesPieChart({
     };
   });
 
-  // Dynamically generate chartConfig based on chartData
   const dynamicChartConfig = chartData.reduce((config, data: any) => {
     config[data.familyName] = {
       label: data.familyName,
@@ -55,7 +52,6 @@ export function FamiliesPieChart({
     return config;
   }, {} as ChartConfig);
 
-  // Custom legend renderer
   const renderCustomLegend = (props: any) => {
     const { payload } = props;
     return (
