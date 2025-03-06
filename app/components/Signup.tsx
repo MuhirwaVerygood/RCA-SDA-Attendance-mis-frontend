@@ -9,7 +9,10 @@ import { registerUser } from '../constants/files/Constants'
 export interface User {
     username?: string,
     email: string,
-    password: string
+    password: string,
+    isAdmin?: boolean,
+    isFather?: boolean,
+    isMother?: boolean
 }
 
 

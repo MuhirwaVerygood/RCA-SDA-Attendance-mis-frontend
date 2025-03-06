@@ -1,13 +1,15 @@
-"use client";
-import React, { useEffect, useState } from "react";
-import { authorizedAPI } from "../constants/files/api";
-import jsPDF from "jspdf";
-import autoTable from "jspdf-autotable";
-import ChurchLogo from "../constants/svgs/ChurchLogo.svg";
-import Calendar from "../constants/svgs/Calendar.svg";
+'use client';
+import React, { useEffect, useState, useMemo } from 'react';
+import { authorizedAPI } from '../constants/files/api';
+import jsPDF from 'jspdf';
+import autoTable from 'jspdf-autotable';
+import ChurchLogo from '../constants/svgs/ChurchLogo.svg';
+import Calendar from '../constants/svgs/Calendar.svg';
+import Image from 'next/image';
+import { Button } from '@/components/ui/button';
+import { User } from './Signup';
+import axios from 'axios';
 
-import Image from "next/image";
-import { Button } from "@/components/ui/button";
 interface Family {
   id: number;
   familyName: string;
@@ -29,7 +31,7 @@ export interface AttendanceData {
   abize7: number;
   abashyitsi: number;
   date: string;
-  family: Family ;
+  family: Family;
 }
 
 const AttendanceReport = ({
@@ -43,116 +45,159 @@ const AttendanceReport = ({
   const [families, setFamilies] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [user, setUser] = useState<User | null>(null);
 
+  // Fetch user and attendance data in a single useEffect
   useEffect(() => {
-    const fetchAttendanceData = async () => {
-      try {
-        const response = await authorizedAPI.get(
-          `http://localhost:3500/attendances/${date}`
-        );
+    const fetchData = async () => {
+      const userString = localStorage.getItem('loggedInUser');
+      if (userString) {
+        const loggedInUser = JSON.parse(userString);
+        setUser(loggedInUser);
 
-        
-        const data: AttendanceData[] = await response.data;
+        try {
+          // Determine the API URL based on the user's role
+          const apiUrl = loggedInUser?.isAdmin
+            ? `/attendances/${date}`
+            : loggedInUser?.isFather || loggedInUser?.isMother
+            ? `/attendances/family/${date}`
+            : '';
 
-        if (data.some((item) => item.family == null)) {
-          setAttendanceData(data)
-        } else {
-          // Extract unique family names dynamically
-          const uniqueFamilies = Array.from(
-            new Set(data.map((item) => item.family.familyName)),
-          );
-          setFamilies(uniqueFamilies);
-          setAttendanceData(data);
+          // If no valid API URL is determined, throw an error
+          if (!apiUrl) {
+            throw new Error('Invalid user role or missing date.');
+          }
+
+          // Fetch data from the API
+          const response = await authorizedAPI.get(apiUrl);
+          const data: AttendanceData[] = response.data;
+
+          // Process the data
+          if (data.some((item) => item.family == null)) {
+            setAttendanceData(data);
+            console.log(attendanceData);
+            
+          } else {
+            const uniqueFamilies = Array.from(
+              new Set(data.map((item) => item.family.familyName)),
+            );
+            setFamilies(uniqueFamilies);
+            setAttendanceData(data);
+          }
+        } catch (error) {
+          console.error('Error fetching attendance data:', error);
+
+          // Handle Axios errors
+          if (axios.isAxiosError(error)) {
+            // Axios-specific error handling
+            if (error.response) {
+              // The request was made and the server responded with a status code
+              console.error('Axios error response:', error.response);
+              setError(
+                `Error: ${error.response.status} - ${error.response.statusText}`,
+              );
+            } else if (error.request) {
+              // The request was made but no response was received
+              console.error('Axios error request:', error.request);
+              setError('No response received from the server.');
+            } else {
+              // Something happened in setting up the request
+              console.error('Axios error:', error.message);
+              setError(`Error: ${error.message}`);
+            }
+          } else {
+            // Handle non-Axios errors
+            console.error('Non-Axios error:', error);
+            setError('An unexpected error occurred.');
+          }
+        } finally {
+          setLoading(false);
         }
-      } catch (error) {
-        console.log(error);
-        
-        setError("Failed to fetch attendance data.");
-      } finally {
-        setLoading(false);
       }
     };
 
     if (date) {
-      fetchAttendanceData();
+      fetchData();
     }
   }, [date]);
 
   const features = [
-    "abanditswe",
-    "abaje",
-    "abasuye",
-    "abasuwe",
-    "abafashije",
-    "abafashijwe",
-    "abatangiyeIsabato",
-    "abarwayi",
-    "abafiteImpamvu",
-    "abize7",
-    "abashyitsi",
+    'abanditswe',
+    'abaje',
+    'abasuye',
+    'abasuwe',
+    'abafashije',
+    'abafashijwe',
+    'abatangiyeIsabato',
+    'abarwayi',
+    'abafiteImpamvu',
+    'abize7',
+    'abashyitsi',
   ];
-
 
   const formatFeatureName = (feature: string): string => {
     return feature
-      .replace(/([a-z])([A-Z])/g, '$1 $2')  // Add space between camelCase words
-      .replace(/^./, (str) => str.toUpperCase());  // Capitalize the first letter
+      .replace(/([a-z])([A-Z])/g, '$1 $2') // Add space between camelCase words
+      .replace(/^./, (str) => str.toUpperCase()); // Capitalize the first letter
   };
-
 
   // Calculate total for a given key
   const calculateTotal = (key: keyof AttendanceData): number => {
-    return attendanceData.reduce((sum, item) => sum + (Number(item[key]) || 0), 0);
+    return attendanceData.reduce(
+      (sum, item) => sum + (Number(item[key]) || 0),
+      0,
+    );
   };
 
   // Get attendance value for a specific family and key
   const getValue = (familyName: string, key: keyof AttendanceData): number => {
     const entry = attendanceData.find(
-      (item) => item.family.familyName === familyName
+      (item) => item.family.familyName === familyName,
     );
     return entry ? Number(entry[key]) || 0 : 0;
   };
 
-
-
-
-  // Calculate percentage per family
-  // Calculate percentage per family based on abanditswe
+  // Calculate percentage for each family
   const familyPercentages = families.map((family) => {
-    const registered = getValue(family, "abanditswe") - getValue(family, "abafiteImpamvu") - getValue(family, "abarwayi");
-    if (registered === 0) return "0%";
+    const registered =
+      getValue(family, 'abanditswe') -
+      getValue(family, 'abafiteImpamvu') -
+      getValue(family, 'abarwayi');
+    if (registered === 0) return '0%';
 
     // Calculate the average percentage across all features for this family
     const totalPercentage = features
-      .filter((feature) => feature !== "abanditswe" && feature !== "abashyitsi" && feature !== "abarwayi" && feature !== "abafiteImpamvu")  // Exclude "abanditswe" itself
-      .reduce((sum, feature) => sum + (getValue(family, feature as keyof AttendanceData) / registered) * 100, 0);
+      .filter(
+        (feature) =>
+          feature !== 'abanditswe' &&
+          feature !== 'abashyitsi' &&
+          feature !== 'abarwayi' &&
+          feature !== 'abafiteImpamvu',
+      ) // Exclude specific features
+      .reduce((sum, feature) => {
+        const value = getValue(family, feature as keyof AttendanceData);
+        return sum + (value / registered) * 100;
+      }, 0);
 
-    const avgPercentage = totalPercentage / (features.length - 4); // Exclude abanditswe from count
-    return avgPercentage.toFixed(2) + "%";
+    const avgPercentage = totalPercentage / (features.length - 4); // Exclude 4 features from count
+    return avgPercentage.toFixed(2) + '%';
   });
 
-
+  // Calculate overall percentage
   const overallPercentage = families.length
     ? (
-      familyPercentages.reduce((sum, percentage) => sum + parseFloat(percentage), 0) /
-      families.length
-    ).toFixed(2) + "%"
-    : "0%";
-
-
-
-
-
-
-
+        familyPercentages.reduce(
+          (sum, percentage) => sum + parseFloat(percentage),
+          0,
+        ) / families.length
+      ).toFixed(2) + '%'
+    : '0%';
 
   // Download Attendance Report as PDF
   const downloadPDF = () => {
-
     const doc = new jsPDF();
     doc.text(`Attendance Report - ${date}`, 20, 10);
 
-    // Function to format the feature names
     const formatFeature = (feature: string) => {
       return feature
         .replace(/([A-Z])/g, ' $1') // Add a space before each uppercase letter
@@ -160,42 +205,38 @@ const AttendanceReport = ({
     };
 
     const tableData: any[] = [];
-    const headers = ["Feature", ...families, "Total"];
+    const headers = ['Feature', ...families, 'Total'];
 
     features.forEach((feature) => {
-      // Fetch the values first
       const row = [
-        formatFeature(feature), // Format the feature name after getting the values
-        ...families.map((family) => getValue(family, feature as keyof AttendanceData)),
+        formatFeature(feature),
+        ...families.map((family) =>
+          getValue(family, feature as keyof AttendanceData),
+        ),
         calculateTotal(feature as keyof AttendanceData),
       ];
       tableData.push(row);
     });
 
-    // Calculate percentage for each family (same as before)
+    // Add percentage row
     const percentageRow = [
-      "Percentage",
-      ...familyPercentages.map((percentage) => percentage.toString()), // Just return the percentage value as string
-      overallPercentage.toString(), // Just return overall percentage as string
+      'Percentage',
+      ...familyPercentages,
+      overallPercentage,
     ];
-
     tableData.push(percentageRow);
 
-    // Generate PDF table
     autoTable(doc, {
       head: [headers],
       body: tableData,
       didParseCell: function (data) {
         if (data.row.index === tableData.length - 1 && data.column.index > 0) {
-          // Get the raw text from the cell
           const percentageRaw = data.cell.raw;
+          const percentage =
+            typeof percentageRaw === 'string'
+              ? parseFloat(percentageRaw.replace('%', ''))
+              : 0;
 
-          // Handle the percentage if it's a number or string (ensure parsing)
-          const percentage = typeof percentageRaw === 'string'
-            ? parseFloat(percentageRaw.replace("%", ""))
-            : 0;
-
-          // Apply red color if percentage is below 50
           if (percentage < 50) {
             data.cell.styles.textColor = [255, 0, 0]; // Red color
           }
@@ -206,20 +247,60 @@ const AttendanceReport = ({
     doc.save(`Attendance_Report_${date}.pdf`);
   };
 
+
+
+
+
+
+  const calculateAttendancePercentage = (
+    attendance: AttendanceData,
+    features: string[],
+  ): string => {
+    
+    // Calculate the number of registered members who were expected to attend
+    const registered =
+      attendance.abanditswe - attendance.abafiteImpamvu - attendance.abarwayi;
+
+    // If no members were expected to attend, return 0%
+    if (registered === 0) return '0%';
+
+    // Exclude specific features from the calculation
+    const includedFeatures = features.filter(
+      (feature) =>
+        feature !== 'abanditswe' &&
+        feature !== 'abashyitsi' &&
+        feature !== 'abarwayi' &&
+        feature !== 'abafiteImpamvu',
+    );
+
+    // Calculate the total percentage across the included features
+    const totalPercentage = includedFeatures.reduce((sum, feature) => {
+      const value: any = attendance[feature as keyof AttendanceData] || 0;
+      return sum + (value / registered) * 100;
+    }, 0);
+
+    // Calculate the average percentage
+    const avgPercentage = totalPercentage / includedFeatures.length;
+
+    // Return the percentage as a formatted string
+    return `${avgPercentage.toFixed(2)}%`;
+  };
+
+
+
+
+console.log(attendanceData[0]);
+
+
+ 
+  const isParent = user?.isFather || user?.isMother;
+  const famPercentage = isParent ? calculateAttendancePercentage(attendanceData[0], features) : ""
+  console.log(famPercentage);
+  
+
+  
   if (loading) return <p>Loading...</p>;
   if (error) return <p>{error}</p>;
-
-
-  const familyTotals: Record<string, number> = {};
-
-  features.forEach((feature) => {
-    families.forEach((family) => {
-      const value = getValue(family, feature as keyof AttendanceData);
-      familyTotals[family] = (familyTotals[family] || 0) + value;
-    });
-  });
-
-
 
   return (
     <div>
@@ -239,7 +320,7 @@ const AttendanceReport = ({
       </div>
 
       <div className="flex justify-end py-5">
-        <Button onClick={downloadPDF} className="px-4 py-5  text-white rounded">
+        <Button onClick={downloadPDF} className="px-4 py-5 text-white rounded">
           Download PDF
         </Button>
       </div>
@@ -279,56 +360,32 @@ const AttendanceReport = ({
           ))}
 
           {/* Percentage Row */}
-          {attendanceData.some((item) => item.family !== null) && (
-            <tr className="bg-gray-200 font-bold">
-              <td className="border border-gray-300 px-4 py-2">Percentage</td>
-              {familyPercentages.map((percentage, index) => {
-                const numericPercentage = parseFloat(percentage);
-                return (
-                  <td
-                    key={index}
-                    className={`border text-center border-gray-300 px-4 py-2 ${
-                      numericPercentage < 50 ? 'text-red-500' : ''
-                    }`}
-                  >
-                    {percentage}
-                  </td>
-                );
-              })}
-              <td
-                className={`border border-gray-300 px-4 py-2 ${
-                  families.length > 0 &&
-                  parseFloat(
-                    (
-                      familyPercentages.reduce(
-                        (sum, percentage) => sum + parseFloat(percentage),
-                        0,
-                      ) / families.length
-                    ).toFixed(2),
-                  ) < 50
-                    ? 'text-red-500'
-                    : ''
-                }`}
-              >
-                {families.length > 0
-                  ? (
-                      familyPercentages.reduce(
-                        (sum, percentage) => sum + parseFloat(percentage),
-                        0,
-                      ) / families.length
-                    ).toFixed(2) + '%'
-                  : '0%'}
-              </td>
-            </tr>
-          )}
-          
+          <tr className="bg-gray-200 font-bold">
+            <td className="border border-gray-300 px-4 py-2">Percentage</td>
+            {familyPercentages.map((percentage, index) => {
+              const numericPercentage = parseFloat(percentage);
+              return (
+                <td
+                  key={index}
+                  className={`border text-center border-gray-300 px-4 py-2 ${
+                    numericPercentage < 50 ? 'text-red-500' : ''
+                  }`}
+                >
+                  { user?.isAdmin? percentage : calculateAttendancePercentage(attendanceData[0], features) }
+                </td>
+              );
+            })}
+            <td className="border border-gray-300 px-4 py-2">
+              {overallPercentage}
+            </td>
+          </tr>
         </tbody>
       </table>
 
       <div className="mt-4 flex space-x-4 justify-end">
         <Button
           onClick={() => setIsDialogOpen(false)}
-          className="px-4 py-5  text-white rounded  w-[10%]"
+          className="px-4 py-5 text-white rounded w-[10%]"
         >
           Close
         </Button>

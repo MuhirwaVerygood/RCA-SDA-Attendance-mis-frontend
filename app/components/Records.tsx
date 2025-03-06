@@ -1,7 +1,6 @@
 "use client";
 import React, { useState } from "react";
 import Image from "next/image";
-import Download from "../constants/svgs/Download.svg";
 import Eye from "../constants/svgs/Eye.svg";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { AlertDialog, AlertDialogContent, AlertDialogTrigger } from "@/components/ui/alert-dialog";
@@ -31,7 +30,6 @@ const Records = () => {
         const formattedDate = formatDateForRequest(date);
         setSelectedDate(formattedDate);
 
-        console.log(formattedDate);
 
         setIsDialogOpen(true)
     }

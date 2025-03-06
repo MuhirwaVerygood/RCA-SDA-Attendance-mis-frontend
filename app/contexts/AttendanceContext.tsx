@@ -33,7 +33,12 @@ export const AttendanceProvider = ({ children }: { children: ReactNode }) => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                await fetchAttendances(setLoading, setError, setAttendances);
+                await fetchAttendances(
+                  '/attendances/grouped',
+                  setLoading,
+                  setError,
+                  setAttendances,
+                );
             } catch (error: any) {
                 setError(error.message);
             } finally {
