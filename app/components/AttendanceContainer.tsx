@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
     AlertDialog,
     AlertDialogTrigger,
@@ -8,6 +8,7 @@ import {
 import { Button } from "@/components/ui/button";
 import AttendanceTable from "../components/AttendanceTable";
 import { addGeneralAttendanceByForm } from "../constants/files/Constants";
+import { User } from "./Signup";
 
 export interface GeneralFormAttendance {
     abaje: number;
@@ -58,6 +59,21 @@ const AttendanceContainer = () => {
 
 
 
+      const [user, setUser]  = useState<User>()
+    
+    
+    
+    
+      const attendanceUrl = user?.isAdmin ? '/attendances/general/form': "/attendances/family/form"
+    
+    
+        useEffect(() => {
+          const userString = localStorage.getItem('loggedInUser');
+          if (userString) {
+            setUser(JSON.parse(userString));
+          }
+        }, []);
+
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
@@ -68,7 +84,7 @@ const AttendanceContainer = () => {
     };
 
     const handleSubmit = () => {
-        addGeneralAttendanceByForm(formData)
+        addGeneralAttendanceByForm(attendanceUrl, formData)
     };
 
     return (

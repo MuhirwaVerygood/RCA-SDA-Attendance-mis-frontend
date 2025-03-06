@@ -473,10 +473,11 @@ export async function handleAddAttendance(
 }
 
 export async function addGeneralAttendanceByForm(
+  url: string,
   formData: GeneralFormAttendance,
 ) {
   try {
-    const res = await authorizedAPI.post('/attendances/general/form', formData);
+    const res = await authorizedAPI.post( url, formData);
     if (res.status === 200 || res.status === 201) {
       toast.success('Attendance added successfully', {
         position: 'top-center',

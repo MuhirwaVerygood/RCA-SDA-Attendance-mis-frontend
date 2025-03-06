@@ -211,7 +211,7 @@ const AttendanceTable = ({ setDialogType }: { setDialogType: React.Dispatch<Reac
                   <td
                     className="border border-gray-300 px-4 py-2 text-center cursor-pointer"
                     onClick={() => handleCheckboxChange(member.id, "yaje")}
-                  >
+                  > 
                     <input
                       type="checkbox"
                       checked={isYajeChecked}
