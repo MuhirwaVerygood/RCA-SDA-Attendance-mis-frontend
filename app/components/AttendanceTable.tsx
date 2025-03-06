@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { getAllMembers, handleAddAttendance } from "../constants/files/Constants";
 import { Button } from "@/components/ui/button";
+import { useFamily } from "../contexts/FamilyContext";
+import { User } from "./Signup";
+import { Kid } from "@/lib/features/FamilySlice";
 
 interface Family {
   id: number;
@@ -30,16 +33,47 @@ export interface IndividualAttendance {
 }
 
 const AttendanceTable = ({ setDialogType }: { setDialogType: React.Dispatch<React.SetStateAction<"form" | "table" | null>> }) => {
-  const [members, setMembers] = useState<Member[]>([]);
+  const [members, setMembers] = useState<Member[] | Kid[] >([]);
   const [attendance, setAttendance] = useState<IndividualAttendance[]>([]);
   const [abashyitsiCount, setAbashyitsiCount] = useState<number>(0);
+  const [user, setUser]  = useState<User>()
+
+
+  const { family } = useFamily()
+
+
+    useEffect(() => {
+      const userString = localStorage.getItem('loggedInUser');
+      if (userString) {
+        setUser(JSON.parse(userString));
+      }
+    }, []);
 
   useEffect(() => {
-    getAllMembers().then((fetchedMembers: Member[]) => {
-      setMembers(fetchedMembers);
+    if (!user) return; 
 
-      // Initialize attendance state with default values
-      const initialAttendance = fetchedMembers.map((member) => ({
+    if (user?.isAdmin) {
+        getAllMembers().then((fetchedMembers: Member[]) => {
+          setMembers(fetchedMembers);
+
+          // Initialize attendance state with default values
+          const initialAttendance = fetchedMembers.map((member) => ({
+            memberId: member.id,
+            yaje: false,
+            yarasuye: false,
+            yarasuwe: false,
+            yarafashije: false,
+            yarafashijwe: false,
+            yatangiyeIsabato: false,
+            yize7: false,
+            ararwaye: false,
+            afiteIndiMpamvu: false,
+          }));
+          setAttendance(initialAttendance);
+        });
+    } else if (user?.isFather || user?.isMother) {
+      setMembers(family?.members || []);
+      const initialAttendance = family?.members?.map((member) => ({
         memberId: member.id,
         yaje: false,
         yarasuye: false,
@@ -51,9 +85,13 @@ const AttendanceTable = ({ setDialogType }: { setDialogType: React.Dispatch<Reac
         ararwaye: false,
         afiteIndiMpamvu: false,
       }));
-      setAttendance(initialAttendance);
-    });
-  }, []);
+
+      console.log(initialAttendance);
+      
+      setAttendance(initialAttendance || []);
+    }
+  
+  }, [user, family]);
 
   const handleCheckboxChange = (
     memberId: number,
