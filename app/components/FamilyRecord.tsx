@@ -45,7 +45,7 @@ const FamilyRecords = () => {
   return (
     <div className="flex flex-col pl-[5%] w-full pt-[5%]">
       <span className="font-semibold text-[25px] mb-[2%]">
-        Attendance Records - {family?.name}
+        Attendance Records - {family?.familyName}
       </span>
       <Table className="w-[70%]">
         <TableHeader>
