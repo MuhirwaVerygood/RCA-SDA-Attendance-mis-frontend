@@ -442,6 +442,7 @@ export async function getAllMembers(): Promise<Member[]> {
 
 export async function handleAddAttendance(
   attendance: AttendanceByTable | GeneralFormAttendance,
+  url: string
 ) {
   let formData;
   try {
@@ -452,17 +453,20 @@ export async function handleAddAttendance(
       };
 
       const res = await authorizedAPI.post(
-        '/attendances/general/table',
+        url,
         formData,
       );
+      
       if (res.status === 200 || res.status === 201) {
-        console.log('Attendance successfully added:', res.data);
+        toast.success(res.data.message)
+        window.location.reload()
       } else {
         console.error('Failed to add attendance:', res.statusText);
         throw new Error('Failed to add attendance');
       }
     }
   } catch (error: any) {
+    
     console.error('An error occurred while adding attendance:', error.message);
     throw new Error(error.message);
   }
