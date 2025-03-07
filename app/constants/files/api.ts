@@ -1,7 +1,8 @@
 import axios, { AxiosInstance } from "axios";
 import { Cookies } from 'react-cookie';
 const cookies = new Cookies();
-const API_URL = process.env.API_URL || "http://localhost:3500";
+const API_URL =
+  process.env.API_URL || 'https://rca-sda-attendance-mis.onrender.com';
 const commonHeaders = {
     'Content-Type': 'application/json',
 };

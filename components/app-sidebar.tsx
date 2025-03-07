@@ -19,6 +19,7 @@ import Notebook from '.././app/constants/svgs/Notebook.svg';
 import NotePencil from '.././app/constants/svgs/NotePencil.svg';
 import User from '.././app/constants/svgs/User.svg';
 import UserPlus from '.././app/constants/svgs/UserPlus.svg';
+import Dashboard from '.././app/constants/svgs/dashboard.png';
 
 export function AppSidebar() {
   const pathname = usePathname();
@@ -37,6 +38,11 @@ export function AppSidebar() {
         {
           title: 'MAIN MENU',
           subItems: [
+            {
+              title: 'Dashboard',
+              url: '/admin-landing',
+              image: Dashboard,
+            },
             {
               title: 'Families',
               url: '/families',
@@ -75,6 +81,12 @@ export function AppSidebar() {
         {
           title: 'MAIN MENU',
           subItems: [
+            {
+              title: 'Dashboard',
+              url: '/father-landing',
+              image: Dashboard,
+            },
+
             {
               title: 'Family members',
               url: '/family/members',
