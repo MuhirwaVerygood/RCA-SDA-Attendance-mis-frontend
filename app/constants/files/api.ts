@@ -3,6 +3,7 @@ import { Cookies } from 'react-cookie';
 const cookies = new Cookies();
 const API_URL =
   process.env.API_URL || 'https://rca-sda-attendance-mis.onrender.com';
+// "http://localhost:3500"
 const commonHeaders = {
     'Content-Type': 'application/json',
 };
