@@ -62,8 +62,6 @@ const AttendanceContainer = () => {
       const [user, setUser]  = useState<User>()
     
     
-    
-    
       const attendanceUrl = user?.isAdmin ? '/attendances/general/form': "/attendances/family/form"
     
     
@@ -118,6 +116,8 @@ const AttendanceContainer = () => {
                                         />
                                     </div>
                                 ))}
+                            
+                                
                                 <div className="col-span-2 flex justify-end space-x-2">
                                     <Button variant="outline" onClick={() => setDialogType(null)}>
                                         Cancel
