@@ -11,6 +11,7 @@ import {
   SidebarMenuSub,
   SidebarMenuSubItem,
   SidebarMenuSubButton,
+  SidebarMenuButton, // Import SidebarMenuButton
 } from '@/components/ui/sidebar';
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
@@ -124,9 +125,9 @@ export function AppSidebar() {
                       {item.subItems.map((subItem) => (
                         <SidebarMenuSubItem key={subItem.title}>
                           <SidebarMenuSubButton asChild>
-                            <button
+                            <SidebarMenuButton
                               onClick={() => router.push(subItem.url)}
-                              className={` flex items-center pl-2 text-gray-600 hover:bg-gray-200 focus:bg-gray-400 hover:text-gray-800 
+                              className={`flex items-center pl-2 text-gray-600 hover:bg-gray-200 focus:bg-gray-400 hover:text-gray-800 
                                 ${
                                   pathname === subItem.url
                                     ? 'bg-gray-300 border-r-4 border-black'
@@ -139,7 +140,7 @@ export function AppSidebar() {
                                 className="mr-3 w-5 h-5"
                               />
                               {subItem.title}
-                            </button>
+                            </SidebarMenuButton>
                           </SidebarMenuSubButton>
                         </SidebarMenuSubItem>
                       ))}
